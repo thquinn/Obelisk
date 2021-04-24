@@ -47,18 +47,7 @@ public class GameManagerScript : MonoBehaviour
     }
 
     void MakeNewFloor() {
-        Floor floor = null;
-        int attempts = 0;
-        do {
-            floor = new Floor(nextFloorNumber);
-            attempts++;
-        }
-        while (attempts < 100 && floors.Count > 0 && !floor.IsSuitableAfter(floors[floors.Count - 1]));
-        if (attempts < 100) {
-            Debug.Log(string.Format("Generated suitable level after {0} attempts.", attempts));
-        } else {
-            Debug.Log(string.Format("Failed to generate suitable level after {0} attempts.", attempts));
-        }
+        Floor floor = nextFloorNumber == 0 ? new Floor(0) : Floor.Generate(nextFloorNumber, floors[floors.Count - 1], 100);
         floors.Add(floor);
         FloorScript floorScript = Instantiate(floorPrefab).GetComponent<FloorScript>();
         floorScript.Initialize(floor);

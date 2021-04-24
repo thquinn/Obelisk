@@ -7,7 +7,7 @@ using Coor = System.Tuple<int, int>;
 
 namespace Assets.Model {
     public class Floor {
-        static int FLOORGEN_MIN_ENTRANCE_TO_EXIT_DISTANCE = 8;
+        static int FLOORGEN_IDEAL_ENTRANCE_TO_EXIT_DISTANCE = 12;
 
         public Tile[,] tiles;
         public HashSet<Coor> wallsRight, wallsBelow;
@@ -31,13 +31,26 @@ namespace Assets.Model {
             // Place walls.
             wallsRight = new HashSet<Coor>();
             wallsBelow = new HashSet<Coor>();
-            /*
-            for (int i = 0; i < 20; i++) {
-                bool horizontal = Random.value < .5f;
-                Coor wallCoor = new Coor(Random.Range(0, Width() - (horizontal ? 0 : 1)), Random.Range(0, Height() - (horizontal ? 1 : 0)));
-                (horizontal ? wallsBelow : wallsRight).Add(wallCoor);
+            if (n > 0) {
+                for (int i = 0; i < 20; i++) {
+                    bool horizontal = Random.value < .5f;
+                    Coor wallCoor = new Coor(Random.Range(0, Width() - (horizontal ? 0 : 1)), Random.Range(0, Height() - (horizontal ? 1 : 0)));
+                    (horizontal ? wallsBelow : wallsRight).Add(wallCoor);
+                }
             }
-            */
+        }
+        public static Floor Generate(int number, Floor previous, int attempts) {
+            Floor bestFloor = null;
+            float bestScore = float.MinValue;
+            for (int i = 0; i < 100; i++) {
+                Floor floor = new Floor(number);
+                float score = floor.ScoreSuitability(previous);
+                if (score >= bestScore) {
+                    bestFloor = floor;
+                    bestScore = score;
+                }
+            }
+            return bestFloor;
         }
 
         public int Width() {
@@ -74,14 +87,14 @@ namespace Assets.Model {
             return destination.IsPassable(entity);
         }
 
-        public bool IsSuitableAfter(Floor previous) {
+        public float ScoreSuitability(Floor previous) {
             Coor entrance = previous.FindExit();
             Coor exit = FindExit();
             List<Coor> path = Util.FindPath(this, entrance, exit, new Player(tiles[entrance.Item1, entrance.Item2])); // pass a new Player since player upgrades shouldn't affect mapgen
-            if (path == null || path.Count < FLOORGEN_MIN_ENTRANCE_TO_EXIT_DISTANCE) {
-                return false;
+            if (path == null) {
+                return float.MinValue;
             }
-            return true;
+            return -Mathf.Abs(path.Count - FLOORGEN_IDEAL_ENTRANCE_TO_EXIT_DISTANCE);
         }
     }
 }

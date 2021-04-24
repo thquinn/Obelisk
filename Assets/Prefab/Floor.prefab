@@ -47,3 +47,5 @@ MonoBehaviour:
     type: 3}
   prefabEntity: {fileID: 6850801923151613475, guid: e45f8df06d3cf624883fdba21c7c9d73,
     type: 3}
+  prefabWall: {fileID: 7070325162448053184, guid: 5e6727657892d884eb11972570285b62,
+    type: 3}

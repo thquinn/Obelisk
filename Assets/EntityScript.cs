@@ -6,10 +6,10 @@ using Coor = System.Tuple<int, int>;
 
 public class EntityScript : MonoBehaviour
 {
-    static float SHADOW_ALPHA = .066f;
+    static float SHADOW_ALPHA = .133f;
     static float LERP_MOVEMENT = .15f;
     static float LERP_SHADOW = .25f;
-    static float GRAVITY = .03f;
+    static float GRAVITY = .02f;
 
     public SpriteRenderer shadowRenderer;
 

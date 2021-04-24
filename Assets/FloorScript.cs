@@ -6,7 +6,7 @@ using Coor = System.Tuple<int, int>;
 
 public class FloorScript : MonoBehaviour
 {
-    public GameObject prefabTile, prefabEntity;
+    public GameObject prefabTile, prefabEntity, prefabWall;
 
     Floor floor;
 
@@ -26,7 +26,18 @@ public class FloorScript : MonoBehaviour
                 }
             }
         }
-        // TODO: Create walls.
+        // Create walls.
+        foreach (Coor coor in floor.wallsRight) {
+            GameObject wall = Instantiate(prefabWall, transform);
+            Vector2 xz = GetXZ(coor);
+            wall.transform.localPosition = new Vector3(xz.x + .5f, 0, xz.y);
+        }
+        foreach (Coor coor in floor.wallsBelow) {
+            GameObject wall = Instantiate(prefabWall, transform);
+            Vector2 xz = GetXZ(coor);
+            wall.transform.localPosition = new Vector3(xz.x, 0, xz.y - .5f);
+            wall.transform.localRotation = Quaternion.Euler(0, 90, 0);
+        }
     }
 
     public Vector2 GetXZ(Coor coor) {
