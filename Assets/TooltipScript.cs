@@ -9,6 +9,7 @@ using UnityEngine.UI;
 public class TooltipScript : MonoBehaviour
 {
     static Dictionary<SkillType, string> SKILL_TOOLTIPS = new Dictionary<SkillType, string> {
+        { SkillType.Phase, "You pass through walls during your next move." },
         { SkillType.Wait, "Do nothing." },
     };
     static Dictionary<EntityTrait, string> TRAIT_NAMES = new Dictionary<EntityTrait, string> {

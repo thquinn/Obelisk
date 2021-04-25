@@ -71,6 +71,7 @@ public class GameManagerScript : MonoBehaviour
         if (waitFrames <= 0 && !playerScript.fallMode) {
             if (PlayerMovement() || PlayerSkills()) {
                 player.traits.Decrement();
+                player.DecrementCooldowns();
                 CleanupDestroyed();
                 waitFrames = WAIT_FRAMES;
             }

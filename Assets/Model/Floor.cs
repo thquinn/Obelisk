@@ -37,7 +37,7 @@ namespace Assets.Model {
                         tile.entities.Add(new Player(tile));
                     }
                     if (position == enemyPosition || position == enemyPosition2) {
-                        tile.entities.Add(new MeleeEnemy(tile));
+                        tile.entities.Add(new Enemy(tile));
                     }
                 }
             }
@@ -93,6 +93,13 @@ namespace Assets.Model {
             return null;
         }
         public bool CanPassBetween(Coor one, Coor two, Entity entity) {
+            Tile destination = tiles[two.Item1, two.Item2];
+            if (!destination.IsPassable(entity)) {
+                return false;
+            }
+            if (entity.traits.Has(EntityTrait.Phasing)) {
+                return true;
+            }
             if (one.Item1 != two.Item1) {
                 // check for vertical walls
                 int x = Mathf.Min(one.Item1, two.Item1);
@@ -106,8 +113,7 @@ namespace Assets.Model {
                     return false;
                 }
             }
-            Tile destination = tiles[two.Item1, two.Item2];
-            return destination.IsPassable(entity);
+            return true;
         }
 
         public void CleanupDestroyed() {

@@ -11,16 +11,17 @@ public class SkillSlotScript : MonoBehaviour, IPointerClickHandler, IPointerEnte
 {
     static int SPACING = 80;
     public static Dictionary<SkillType, string> SKILL_NAMES = new Dictionary<SkillType, string> {
-        { SkillType.Wait, "Wait" }
+        { SkillType.Phase, "Phase" },
+        { SkillType.Wait, "Wait" },
     };
 
     public Sprite spriteSlot, spritePassive, spriteActive;
 
     Player player;
     int index;
-    public CanvasGroup canvasGroup;
+    public CanvasGroup canvasGroupSlot, canvasGroupCooldown;
     public Image backImage, skipImage;
-    public TextMeshProUGUI nameText, costText;
+    public TextMeshProUGUI nameText, costText, cooldownText;
     public Collider2D collidre;
     public Skill skill;
     Vector3 originalNameOffset;
@@ -37,13 +38,24 @@ public class SkillSlotScript : MonoBehaviour, IPointerClickHandler, IPointerEnte
         transform.localPosition = new Vector3(0, SPACING * index, 0);
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (player.skills[index] != skill) {
             skill = player.skills[index];
             ResetSkill();
         }
+        if (skill == null) {
+            return;
+        }
+        if (skill.cooldown > 0) {
+            canvasGroupSlot.alpha = Mathf.Max(.1f, canvasGroupSlot.alpha - .1f);
+            canvasGroupCooldown.alpha += .1f;
+        } else {
+            canvasGroupSlot.alpha += .1f;
+            canvasGroupCooldown.alpha -= .1f;
+        }
+        
+        cooldownText.text = skill.cooldown.ToString();
     }
 
     void ResetSkill() {

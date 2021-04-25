@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assets.Model.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -52,6 +53,11 @@ namespace Assets.Model {
             entity.hp.Item1 = Mathf.Max(0, entity.hp.Item1 - damage);
             if (entity.hp.Item1 == 0) {
                 entity.destroyed = true;
+                if (type == EntityType.Player && entity.type == EntityType.Enemy) {
+                    Player player = (Player)this;
+                    Enemy enemy = (Enemy)entity;
+                    player.GainXP(5);
+                }
             }
         }
 
@@ -76,6 +82,6 @@ namespace Assets.Model {
     }
 
     public enum EntityTrait {
-        DoubleDamage, Flying, UpVision
+        DoubleDamage, Flying, Phasing, UpVision
     }
 }

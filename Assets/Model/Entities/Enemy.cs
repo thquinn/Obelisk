@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 using Coor = System.Tuple<int, int>;
 
 namespace Assets.Model.Entities {
-    class MeleeEnemy : Entity {
+    class Enemy : Entity {
         Coor wanderCoor;
         int wanderTurns;
 
-        public MeleeEnemy(Tile tile) : base(tile) {
+        public Enemy(Tile tile) : base(tile) {
             type = EntityType.Enemy;
-            int numHP = UnityEngine.Random.Range(1, 10);
+            int numHP = UnityEngine.Random.Range(1, 4);
             hp = new ValueTuple<int, int>(numHP, numHP);
             baseDamage = 10;
             if (UnityEngine.Random.value < .33f) {
