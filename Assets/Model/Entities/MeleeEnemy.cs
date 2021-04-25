@@ -14,7 +14,9 @@ namespace Assets.Model.Entities {
             type = EntityType.Enemy;
             hp = new ValueTuple<int, int>(2, 2);
             baseDamage = 10;
-            //traits.Add(EntityTrait.UpVision);
+            if (UnityEngine.Random.value < .33f) {
+                traits.Add(EntityTrait.UpVision);
+            }
         }
 
         public override Coor GetMove() {

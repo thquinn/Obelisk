@@ -7,10 +7,10 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class SkillSlotScript : MonoBehaviour, IPointerClickHandler
+public class SkillSlotScript : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
 {
     static int SPACING = 80;
-    static Dictionary<SkillType, string> SKILL_NAMES = new Dictionary<SkillType, string> {
+    public static Dictionary<SkillType, string> SKILL_NAMES = new Dictionary<SkillType, string> {
         { SkillType.Wait, "Wait" }
     };
 
@@ -24,9 +24,11 @@ public class SkillSlotScript : MonoBehaviour, IPointerClickHandler
     public Collider2D collidre;
     public Skill skill;
     Vector3 originalNameOffset;
+    TooltipScript tooltipScript;
 
     private void Start() {
         originalNameOffset = nameText.gameObject.transform.localPosition;
+        tooltipScript = Object.FindObjectOfType<TooltipScript>();
     }
 
     public void Initialize(Player player, int index) {
@@ -67,6 +69,17 @@ public class SkillSlotScript : MonoBehaviour, IPointerClickHandler
     public void OnPointerClick(PointerEventData eventData) {
         if (skill != null) {
             GameManagerScript.clickedSkill = skill;
+        }
+    }
+
+    public void OnPointerEnter(PointerEventData eventData) {
+        if (skill != null) {
+            tooltipScript.HoverSkill(skill);
+        }
+    }
+    public void OnPointerExit(PointerEventData eventData) {
+        if (skill != null) {
+            tooltipScript.UnhoverSkill(skill);
         }
     }
 }

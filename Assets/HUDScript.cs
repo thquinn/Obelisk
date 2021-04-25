@@ -36,7 +36,7 @@ public class HUDScript : MonoBehaviour
     void Update()
     {
         if (player.tile.floor.number > 0) {
-            canvasGroupHUD.alpha += .01f;
+            canvasGroupHUD.alpha += .04f;
         }
         SetTexts();
         Vector3 hpImageScale = hpImage.transform.localScale;

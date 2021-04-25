@@ -11,9 +11,9 @@ public class GameManagerScript : MonoBehaviour
     static float FLOOR_HEIGHT = 6f;
     static float FLOOR_HEIGHT_OFFSET = 3f;
     static float LERP_FLOOR = .1f;
-    static float CAMERA_SIZE = 6;
+    static float CAMERA_SIZE = 5.75f;
     static int WAIT_FRAMES = 5;
-    static int CAMERA_MOVE_FRAMES = 40;
+    static int CAMERA_MOVE_FRAMES = 80;
 
     public GameObject floorPrefab;
     public HUDScript hudScript;
@@ -98,11 +98,11 @@ public class GameManagerScript : MonoBehaviour
         if (!playerScript.fallMode && cameraMoveFrames > 0) {
             float t = cameraMoveFrames / (float)CAMERA_MOVE_FRAMES;
             float targetY = (nextFloorNumber - 1.5f) * -FLOOR_HEIGHT + cameraInitialPosition.y;
-            float x = nextFloorNumber == 3 ? EasingFunctions.EaseInOutSine(cameraInitialPosition.x, cameraTargetXZ.x, t) : cameraTargetXZ.x;
-            float y = EasingFunctions.EaseInOutSine(cameraMoveStartY, targetY, t);
-            float z = nextFloorNumber == 3 ? EasingFunctions.EaseInOutSine(cameraInitialPosition.z, cameraTargetXZ.z, t) : cameraTargetXZ.z;
+            float x = nextFloorNumber == 3 ? EasingFunctions.EaseInOutQuad(cameraInitialPosition.x, cameraTargetXZ.x, t) : cameraTargetXZ.x;
+            float y = EasingFunctions.EaseInOutQuad(cameraMoveStartY, targetY, t);
+            float z = nextFloorNumber == 3 ? EasingFunctions.EaseInOutQuad(cameraInitialPosition.z, cameraTargetXZ.z, t) : cameraTargetXZ.z;
             cam.transform.localPosition = new Vector3(x, y, z);
-            cam.orthographicSize = Mathf.Lerp(nextFloorNumber == 3 ? 4.5f : CAMERA_SIZE, CAMERA_SIZE, t);
+            cam.orthographicSize = EasingFunctions.EaseInOutQuad(nextFloorNumber == 3 ? 4.5f : CAMERA_SIZE, CAMERA_SIZE, t);
             cameraMoveFrames++;
             if (cameraMoveFrames > CAMERA_MOVE_FRAMES) {
                 if (floors.Count > 2) {

@@ -13,7 +13,7 @@ namespace Assets.Model.Entities {
             hp = new ValueTuple<int, int>(100, 100);
             mp = new ValueTuple<int, int>(20, 20);
             baseDamage = 1;
-            skills = new Skill[3];
+            skills = new Skill[4];
             skills[0] = new Skill(this, SkillType.Wait);
         }
     }
