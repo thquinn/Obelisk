@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 using Coor = System.Tuple<int, int>;
 
 namespace Assets {
@@ -45,6 +46,14 @@ namespace Assets {
             }
             path.Reverse();
             return path;
+        }
+
+        static Camera mainCamera;
+        public static Collider2D GetMouseCollider(LayerMask layerMask) {
+            if (mainCamera == null) mainCamera = Camera.main;
+            Ray mouseRay = mainCamera.ScreenPointToRay(Input.mousePosition);
+            RaycastHit2D hit = Physics2D.GetRayIntersection(mouseRay, 100, layerMask);
+            return hit.collider;
         }
 
         // extension methods

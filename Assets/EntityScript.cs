@@ -1,4 +1,5 @@
 ﻿using Assets.Model;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,6 +12,8 @@ public class EntityScript : MonoBehaviour
     static float LERP_SHADOW = .25f;
     static float GRAVITY = .02f;
     static Color COLOR_PLAYER_MARKER = new Color(1, 0, 0, 0);
+
+    public Sprite[] traitSprites;
 
     public MeshRenderer meshRenderer;
     public SpriteRenderer spriteRenderer, shadowRenderer;
@@ -34,8 +37,24 @@ public class EntityScript : MonoBehaviour
         } else {
             meshRenderer.enabled = false;
             spritePivot.transform.localRotation = Camera.main.transform.localRotation;
+            SetSprites();
         }
         Update(1, 1);
+    }
+    void SetSprites() {
+        GameObject spritePivot = spriteRenderer.transform.parent.gameObject;
+        for (int i = spritePivot.transform.childCount - 1; i >= 1; i++) {
+            Destroy(spritePivot.transform.GetChild(i).gameObject);
+        }
+        foreach (Sprite traitSprite in traitSprites) {
+            EntityTrait trait;
+            if (!Enum.TryParse<EntityTrait>(traitSprite.name, out trait) || !entity.traits.Has(trait)) {
+                continue;
+            }
+            SpriteRenderer traitRenderer = Instantiate(spritePivot.transform.GetChild(spritePivot.transform.childCount - 1), spritePivot.transform).GetComponent<SpriteRenderer>();
+            traitRenderer.sprite = traitSprite;
+            traitRenderer.color = Color.white;
+        }
     }
 
     void Update() {

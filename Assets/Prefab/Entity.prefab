@@ -513,6 +513,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2dc00d95197a5b246846736461d01ec6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  traitSprites:
+  - {fileID: 21300000, guid: 605a3dc1208d34841ba900a03429b3f0, type: 3}
   meshRenderer: {fileID: 8602661756067040329}
   spriteRenderer: {fileID: 9018124270180101685}
   shadowRenderer: {fileID: 7585084530088332167}

@@ -16,6 +16,7 @@ public class GameManagerScript : MonoBehaviour
     static int CAMERA_MOVE_FRAMES = 40;
 
     public GameObject floorPrefab;
+    public HUDScript hudScript;
 
     Camera cam;
     public Player player;
@@ -28,6 +29,8 @@ public class GameManagerScript : MonoBehaviour
     Vector3 cameraTargetXZ;
     float cameraMoveStartY;
     int cameraMoveFrames;
+
+    public static Skill clickedSkill;
 
     void Start()
     {
@@ -66,7 +69,8 @@ public class GameManagerScript : MonoBehaviour
     void Update() {
         UpdateCameraAndFloors();
         if (waitFrames <= 0 && !playerScript.fallMode) {
-            if (PlayerMovement()) {
+            if (PlayerMovement() || PlayerSkills()) {
+                player.traits.Decrement();
                 CleanupDestroyed();
                 waitFrames = WAIT_FRAMES;
             }
@@ -103,6 +107,8 @@ public class GameManagerScript : MonoBehaviour
             if (cameraMoveFrames > CAMERA_MOVE_FRAMES) {
                 if (floors.Count > 2) {
                     floors.RemoveAt(0);
+                    floors[0].previous = null;
+                    floors[0].entrance = null;
                     Destroy(floorScripts[0].gameObject);
                     floorScripts.RemoveAt(0);
                 }
@@ -136,6 +142,14 @@ public class GameManagerScript : MonoBehaviour
             player.Attack(blockingEntity);
         }
         return result != MoveResult.NoMove;
+    }
+    bool PlayerSkills() {
+        if (clickedSkill == null) {
+            return false;
+        }
+        bool usedTurn = clickedSkill.Use();
+        clickedSkill = null;
+        return usedTurn;
     }
     void FallAndEnemyMoves() {
         if (player.tile.type == TileType.Exit) {
@@ -175,6 +189,7 @@ public class GameManagerScript : MonoBehaviour
                 Entity blockingEntity = targetTile.GetBlockingEntity();
                 kvp.Key.Attack(blockingEntity);
             }
+            kvp.Key.traits.Decrement();
         }
     }
 

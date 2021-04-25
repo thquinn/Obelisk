@@ -8,12 +8,14 @@ using Coor = System.Tuple<int, int>;
 namespace Assets.Model {
     public class Tile {
         public Floor floor;
+        public Coor coor;
         public int x, y;
         public TileType type;
         public List<Entity> entities;
 
         public Tile(Floor floor, int x, int y, TileType type) {
             this.floor = floor;
+            coor = new Coor(x, y);
             this.x = x;
             this.y = y;
             this.type = type;
@@ -23,7 +25,7 @@ namespace Assets.Model {
         public bool IsPassable(Entity entity) {
             switch (type) {
                 case TileType.Floor:
-                    return true;
+                    return entity.type == EntityType.Player || !coor.Equals(floor.entrance);
                 case TileType.Exit:
                     return entity.type == EntityType.Player;
             }

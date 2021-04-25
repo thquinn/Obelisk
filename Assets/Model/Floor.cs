@@ -13,10 +13,14 @@ namespace Assets.Model {
         public Tile[,] tiles;
         public HashSet<Coor> wallsRight, wallsBelow;
         public Floor previous;
+        public Coor entrance;
 
         public Floor(int n, Floor previous) {
             this.number = n;
             this.previous = previous;
+            if (previous != null) {
+                entrance = previous.FindExit();
+            }
             tiles = new Tile[7, 7];
             int[] shuffled = Enumerable.Range(0, tiles.Length).ToArray().Shuffle();
             int exitPosition = shuffled[0];
