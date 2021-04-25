@@ -9,6 +9,8 @@ namespace Assets.Model.Entities {
     class MeleeEnemy : Entity {
         public MeleeEnemy(Tile tile) : base(tile) {
             type = EntityType.Enemy;
+            hp = new ValueTuple<int, int>(1, 1);
+            baseDamage = 10;
         }
 
         public override Coor GetMove() {

@@ -29,13 +29,16 @@ namespace Assets.Model {
             }
             throw new Exception("Unhandled passability case.");
         }
-        public bool ContainsBlockingEntity() {
+        public Entity GetBlockingEntity() {
             foreach (Entity e in entities) {
                 if (e.IsBlocking()) {
-                    return true;
+                    return e;
                 }
             }
-            return false;
+            return null;
+        }
+        public bool ContainsBlockingEntity() {
+            return GetBlockingEntity() != null;
         }
         public List<Tile> GetNeighbors() {
             List<Tile> neighbors = new List<Tile>();
@@ -52,6 +55,9 @@ namespace Assets.Model {
                 neighbors.Add(floor.tiles[x, y + 1]);
             }
             return neighbors;
+        }
+        public Tile GetDelta(int dx, int dy) {
+            return floor.tiles[x + dx, y + dy];
         }
 
         public Coor Coor() {

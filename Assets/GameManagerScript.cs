@@ -9,7 +9,7 @@ using Coor = System.Tuple<int, int>;
 public class GameManagerScript : MonoBehaviour
 {
     static float FLOOR_HEIGHT = 6f;
-    static float FLOOR_HEIGHT_OFFSET = 2.2f;
+    static float FLOOR_HEIGHT_OFFSET = 3f;
     static float LERP_FLOOR = .1f;
     static float CAMERA_SIZE = 6;
     static int WAIT_FRAMES = 5;
@@ -18,13 +18,14 @@ public class GameManagerScript : MonoBehaviour
     public GameObject floorPrefab;
 
     Camera cam;
-    Player player;
+    public Player player;
     EntityScript playerScript;
-    List<Floor> floors;
+    public List<Floor> floors;
     List<FloorScript> floorScripts;
     int nextFloorNumber;
     int waitFrames;
-    float cameraInitialY;
+    Vector3 cameraInitialPosition;
+    Vector3 cameraTargetXZ;
     float cameraMoveStartY;
     int cameraMoveFrames;
 
@@ -32,7 +33,8 @@ public class GameManagerScript : MonoBehaviour
     {
         Application.targetFrameRate = 60;
         cam = Camera.main;
-        cameraInitialY = cam.transform.localPosition.y;
+        cameraInitialPosition = cam.transform.localPosition;
+        cameraTargetXZ = cam.transform.localPosition + cam.transform.right * 3;
         floors = new List<Floor>();
         floorScripts = new List<FloorScript>();
         for (int i = 0; i < 2; i++) {
@@ -89,9 +91,11 @@ public class GameManagerScript : MonoBehaviour
         }
         if (!playerScript.fallMode && cameraMoveFrames > 0) {
             float t = cameraMoveFrames / (float)CAMERA_MOVE_FRAMES;
-            float targetY = (nextFloorNumber - 1.5f) * -FLOOR_HEIGHT + cameraInitialY;
-            float y = EasingFunctions.EaseInOutQuad(cameraMoveStartY, targetY, t);
-            cam.transform.localPosition = new Vector3(cam.transform.localPosition.x, y, cam.transform.localPosition.z);
+            float targetY = (nextFloorNumber - 1.5f) * -FLOOR_HEIGHT + cameraInitialPosition.y;
+            float x = nextFloorNumber == 3 ? EasingFunctions.EaseInOutSine(cameraInitialPosition.x, cameraTargetXZ.x, t) : cameraTargetXZ.x;
+            float y = EasingFunctions.EaseInOutSine(cameraMoveStartY, targetY, t);
+            float z = nextFloorNumber == 3 ? EasingFunctions.EaseInOutSine(cameraInitialPosition.z, cameraTargetXZ.z, t) : cameraTargetXZ.z;
+            cam.transform.localPosition = new Vector3(x, y, z);
             cam.orthographicSize = Mathf.Lerp(nextFloorNumber == 3 ? 4.5f : CAMERA_SIZE, CAMERA_SIZE, t);
             cameraMoveFrames++;
             if (cameraMoveFrames > CAMERA_MOVE_FRAMES) {
@@ -107,24 +111,24 @@ public class GameManagerScript : MonoBehaviour
 
     bool PlayerMovement() {
         // TODO: Simultaneous movement
+        MoveResult result = MoveResult.NoMove;
+        int dx = 0, dy = 0;
         if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow)) {
-            if (player.TryMove(-1, 0)) {
-                return true;
-            }
+            dx = -1;
         } else if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow)) {
-            if (player.TryMove(1, 0)) {
-                return true;
-            }
+            dx = 1;
         } else if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow)) {
-            if (player.TryMove(0, -1)) {
-                return true;
-            }
+            dy = -1;
         } else if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow)) {
-            if (player.TryMove(0, 1)) {
-                return true;
-            }
+            dy = 1;
         }
-        return false;
+        result = player.TryMove(dx, dy);
+        if (result == MoveResult.Attack) {
+            Tile targetTile = player.tile.GetDelta(dx, dy);
+            Entity blockingEntity = targetTile.GetBlockingEntity();
+            player.Attack(blockingEntity);
+        }
+        return result != MoveResult.NoMove;
     }
     void FallAndEnemyMoves() {
         if (player.tile.type == TileType.Exit) {
@@ -158,7 +162,12 @@ public class GameManagerScript : MonoBehaviour
         foreach (var kvp in intents) {
             int dx = kvp.Value.Item1 - kvp.Key.tile.x;
             int dy = kvp.Value.Item2 - kvp.Key.tile.y;
-            kvp.Key.TryMove(dx, dy);
+            MoveResult result = kvp.Key.TryMove(dx, dy);
+            if (result == MoveResult.Attack) {
+                Tile targetTile = kvp.Key.tile.floor.tiles[kvp.Value.Item1, kvp.Value.Item2];
+                Entity blockingEntity = targetTile.GetBlockingEntity();
+                kvp.Key.Attack(blockingEntity);
+            }
         }
     }
 }

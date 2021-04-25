@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 using Coor = System.Tuple<int, int>;
 
 namespace Assets.Model {
     public abstract class Entity {
         public Tile tile;
         public EntityType type;
+        public ValueTuple<int, int> hp, mp;
+        public int baseDamage;
         public bool destroyed;
 
         public Entity(Tile tile) {
@@ -16,26 +19,34 @@ namespace Assets.Model {
             destroyed = false;
         }
 
-        public bool TryMove(int dx, int dy) {
+        public MoveResult TryMove(int dx, int dy) {
             int newX = tile.x + dx;
             int newY = tile.y + dy;
             if (newX < 0 || newX >= tile.floor.Width() || newY < 0 || newY >= tile.floor.Height()) {
-                return false;
+                return MoveResult.NoMove;
             }
             Tile newTile = tile.floor.tiles[newX, newY];
             if (!tile.floor.CanPassBetween(new Coor(tile.x, tile.y), new Coor(newTile.x, newTile.y), this)) {
-                return false;
+                return MoveResult.NoMove;
             }
             if (newTile.ContainsBlockingEntity()) {
-                return false;
+                Entity blockingEntity = newTile.GetBlockingEntity();
+                return type == blockingEntity.type ? MoveResult.NoMove : MoveResult.Attack;
             }
             MoveTo(newTile);
-            return true;
+            return MoveResult.Move;
         }
         public void MoveTo(Tile newTile) {
             tile.entities.Remove(this);
             tile = newTile;
             tile.entities.Add(this);
+        }
+
+        public void Attack(Entity entity) {
+            entity.hp.Item1 = Mathf.Max(0, entity.hp.Item1 - baseDamage);
+            if (entity.hp.Item1 == 0) {
+                entity.destroyed = true;
+            }
         }
 
         public virtual Coor GetMove() {
@@ -52,5 +63,9 @@ namespace Assets.Model {
 
     public enum EntityType {
         Player, Enemy
+    }
+    
+    public enum MoveResult {
+        NoMove, Move, Attack
     }
 }
