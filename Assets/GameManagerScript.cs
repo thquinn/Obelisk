@@ -67,10 +67,12 @@ public class GameManagerScript : MonoBehaviour
         UpdateCameraAndFloors();
         if (waitFrames <= 0 && !playerScript.fallMode) {
             if (PlayerMovement()) {
+                CleanupDestroyed();
                 waitFrames = WAIT_FRAMES;
             }
         } else if (--waitFrames == 0) {
             FallAndEnemyMoves();
+            CleanupDestroyed();
         }
     }
 
@@ -168,6 +170,12 @@ public class GameManagerScript : MonoBehaviour
                 Entity blockingEntity = targetTile.GetBlockingEntity();
                 kvp.Key.Attack(blockingEntity);
             }
+        }
+    }
+
+    void CleanupDestroyed() {
+        foreach (Floor floor in floors) {
+            floor.CleanupDestroyed();
         }
     }
 }

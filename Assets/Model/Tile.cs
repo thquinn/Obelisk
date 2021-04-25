@@ -63,6 +63,15 @@ namespace Assets.Model {
         public Coor Coor() {
             return new Coor(x, y);
         }
+
+        public void CleanupDestroyed() {
+            for (int i = entities.Count - 1; i >= 0; i--) {
+                if (!entities[i].destroyed) {
+                    continue;
+                }
+                entities.RemoveAt(i);
+            }
+        }
     }
 
     public enum TileType {

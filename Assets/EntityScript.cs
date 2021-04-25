@@ -42,6 +42,10 @@ public class EntityScript : MonoBehaviour
         Update(LERP_MOVEMENT, LERP_SHADOW);
     }
     void Update(float lerpMovement, float lerpShadow) {
+        if (entity.destroyed) {
+            Destroy(gameObject);
+            return;
+        }
         // Movement.
         Vector2 targetXZ = floorScript.GetXZ(entity.tile.Coor());
         float x = Mathf.Lerp(transform.localPosition.x, targetXZ.x, lerpMovement);

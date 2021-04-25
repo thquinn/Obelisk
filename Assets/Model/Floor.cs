@@ -94,6 +94,12 @@ namespace Assets.Model {
             return destination.IsPassable(entity);
         }
 
+        public void CleanupDestroyed() {
+            foreach (Tile tile in tiles) {
+                tile.CleanupDestroyed();
+            }
+        }
+
         public float ScoreSuitability(Floor previous) {
             Coor entrance = previous.FindExit();
             Coor exit = FindExit();
