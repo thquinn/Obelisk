@@ -12,10 +12,14 @@ namespace Assets.Model.Entities {
 
         public MeleeEnemy(Tile tile) : base(tile) {
             type = EntityType.Enemy;
-            hp = new ValueTuple<int, int>(2, 2);
+            int numHP = UnityEngine.Random.Range(1, 10);
+            hp = new ValueTuple<int, int>(numHP, numHP);
             baseDamage = 10;
             if (UnityEngine.Random.value < .33f) {
                 traits.Add(EntityTrait.DoubleDamage);
+            }
+            if (UnityEngine.Random.value < .33f) {
+                traits.Add(EntityTrait.Flying);
             }
             if (UnityEngine.Random.value < .33f) {
                 traits.Add(EntityTrait.UpVision);

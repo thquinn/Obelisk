@@ -12,18 +12,22 @@ public class EntityScript : MonoBehaviour
     static float LERP_SHADOW = .25f;
     static float GRAVITY = .02f;
     static Color COLOR_PLAYER_MARKER = new Color(1, 0, 0, 0);
+    static float PIP_OFFSET = .1f;
 
+    public GameObject hpPipPrefab;
     public Sprite[] traitSprites;
 
     public MeshRenderer meshRenderer;
     public SpriteRenderer spriteRenderer, shadowRenderer;
     public SpriteRenderer[] markerRenderers;
-    public GameObject spritePivot;
+    public GameObject spritePivot, hpPivot;
 
     FloorScript floorScript;
     public Entity entity;
     public bool fallMode = false;
     float dy;
+    List<SpriteRenderer> pips;
+    int lastHP;
 
     public void Initialize(FloorScript floorScript, Entity entity) {
         this.floorScript = floorScript;
@@ -38,6 +42,7 @@ public class EntityScript : MonoBehaviour
             meshRenderer.enabled = false;
             spritePivot.transform.localRotation = Camera.main.transform.localRotation;
             SetSprites();
+            MakeHPPips();
         }
         Update(1, 1);
     }
@@ -51,9 +56,40 @@ public class EntityScript : MonoBehaviour
             if (!Enum.TryParse<EntityTrait>(traitSprite.name, out trait) || !entity.traits.Has(trait)) {
                 continue;
             }
-            SpriteRenderer traitRenderer = Instantiate(spritePivot.transform.GetChild(spritePivot.transform.childCount - 1), spritePivot.transform).GetComponent<SpriteRenderer>();
-            traitRenderer.sprite = traitSprite;
-            traitRenderer.color = Color.white;
+            if (trait == EntityTrait.Flying) {
+                spritePivot.transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = traitSprite;
+            } else {
+                SpriteRenderer traitRenderer = Instantiate(spritePivot.transform.GetChild(spritePivot.transform.childCount - 1), spritePivot.transform).GetComponent<SpriteRenderer>();
+                traitRenderer.sprite = traitSprite;
+                traitRenderer.color = Color.white;
+            }
+        }
+    }
+    void MakeHPPips() {
+        hpPivot.transform.localRotation = spritePivot.transform.localRotation;
+        hpPivot.transform.Translate(0, .25f, -.5f);
+        pips = new List<SpriteRenderer>();
+        int pipCount = entity.hp.Item2;
+        lastHP = pipCount;
+        int perRow = 1;
+        if (pipCount > 4) {
+            perRow = 3;
+        } else if (pipCount > 2) {
+            perRow = 2;
+        }
+        int rows = Mathf.CeilToInt(pipCount / (float)perRow);
+        for (int i = 0; i < pipCount; i++) {
+            int row = i / perRow;
+            int numInThisRow = row < rows - 1 ? perRow : pipCount % perRow;
+            if (numInThisRow == 0) {
+                numInThisRow = perRow;
+            }
+            int indexInThisRow = i % perRow;
+            float rowOffset = rows / 2f - row - .5f;
+            float colOffset = indexInThisRow - numInThisRow / 2f + .5f;
+            GameObject pip = Instantiate(hpPipPrefab, hpPivot.transform);
+            pip.transform.Translate(PIP_OFFSET * colOffset, PIP_OFFSET * rowOffset, 0);
+            pips.Add(pip.transform.GetChild(0).GetComponentInChildren<SpriteRenderer>());
         }
     }
 
@@ -88,6 +124,13 @@ public class EntityScript : MonoBehaviour
         } else {
             shadowRenderer.enabled = true;
             shadowRenderer.color = new Color(0, 0, 0, shadowAlpha);
+        }
+        // HP pips.
+        if (pips != null && entity.hp.Item1 != lastHP) {
+            for (int i = 0; i < pips.Count; i++) {
+                pips[i].color = i < lastHP - 1 ? Color.red : Color.black;
+            }
+            lastHP = entity.hp.Item1;
         }
         // Markers.
         float dAlpha = -.1f;

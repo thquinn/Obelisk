@@ -27,7 +27,7 @@ namespace Assets.Model {
                 case TileType.Floor:
                     return entity.type == EntityType.Player || !coor.Equals(floor.entrance);
                 case TileType.Exit:
-                    return entity.type == EntityType.Player;
+                    return entity.type == EntityType.Player || entity.traits.Has(EntityTrait.Flying);
             }
             throw new Exception("Unhandled passability case.");
         }

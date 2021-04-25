@@ -76,6 +76,6 @@ namespace Assets.Model {
     }
 
     public enum EntityTrait {
-        DoubleDamage, UpVision
+        DoubleDamage, Flying, UpVision
     }
 }

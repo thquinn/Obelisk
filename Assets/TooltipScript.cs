@@ -13,10 +13,12 @@ public class TooltipScript : MonoBehaviour
     };
     static Dictionary<EntityTrait, string> TRAIT_NAMES = new Dictionary<EntityTrait, string> {
         { EntityTrait.DoubleDamage, "Double Damage" },
+        { EntityTrait.Flying, "Flight" },
         { EntityTrait.UpVision, "Third Eye" },
     };
     static Dictionary<EntityTrait, string> TRAIT_TOOLTIPS = new Dictionary<EntityTrait, string> {
         { EntityTrait.DoubleDamage, "This enemy deals 20 damage." },
+        { EntityTrait.Flying, "This enemy can fly over pitfalls and traps." },
         { EntityTrait.UpVision, "This enemy can see you from the floor below." },
     };
     static string USES_TURN = "\n<color=#FF4040>(Uses your turn.)</color>";
@@ -70,6 +72,7 @@ public class TooltipScript : MonoBehaviour
                 TextMeshProUGUI body = MakeText();
                 body.text = TRAIT_TOOLTIPS[trait];
                 body.font = fontRegular;
+                body.fontSize *= .8f;
                 body.transform.Translate(0, -totalHeight, 0);
                 totalHeight += body.preferredHeight + POST_BODY_OFFSET;
             }
@@ -89,6 +92,7 @@ public class TooltipScript : MonoBehaviour
         }
         tmp.text = text;
         tmp.font = fontRegular;
+        tmp.fontSize *= .8f;
         tmp.transform.Translate(0, -height - POST_TITLE_OFFSET, 0);
     }
     public void UnhoverSkill(Skill skill) {
