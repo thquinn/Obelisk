@@ -27,6 +27,7 @@ namespace Assets.Model {
             int playerPosition = n == 0 ? shuffled[1] : -1;
             int enemyPosition = shuffled[2];
             int enemyPosition2 = shuffled[3];
+            int trapPosition = shuffled[4];
             // Place tiles, exit, and player.
             for (int x = 0; x < Width(); x++) {
                 for (int y = 0; y < Height(); y++) {
@@ -38,6 +39,9 @@ namespace Assets.Model {
                     }
                     if (position == enemyPosition || position == enemyPosition2) {
                         tile.entities.Add(new Enemy(tile));
+                    }
+                    if (position == trapPosition) {
+                        tile.entities.Add(new Trap(tile));
                     }
                 }
             }

@@ -41,6 +41,8 @@ namespace Assets {
                 trait.Item2--;
                 if (trait.Item2 == 0) {
                     traits.RemoveAt(i);
+                } else {
+                    traits[i] = trait;
                 }
             }
         }

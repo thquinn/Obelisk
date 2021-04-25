@@ -42,7 +42,7 @@ public class HUDScript : MonoBehaviour
         if (player.skills[0] != null) {
             canvasGroupSkills.alpha += .04f;
         }
-        if (player.skills.Any(s => s != null && Skill.COSTS.ContainsKey(s.type) && Skill.COSTS[s.type] > 0)) {
+        if (player.skills.Any(s => s != null && Skill.COSTS.ContainsKey(s.type) && Skill.COSTS[s.type] > 0) || player.mp.Item1 < player.mp.Item2) {
             canvasGroupMP.alpha += .04f;
         }
         SetTexts();

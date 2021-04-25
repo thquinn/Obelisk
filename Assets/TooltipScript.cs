@@ -11,19 +11,23 @@ public class TooltipScript : MonoBehaviour
     static Dictionary<SkillType, string> SKILL_TOOLTIPS = new Dictionary<SkillType, string> {
         { SkillType.Empower, "Your next attack deals double damage." },
         { SkillType.Phase, "You pass through walls during your next move." },
+        { SkillType.Quicken, "Make two moves in a row." },
+        { SkillType.Shield, "You take no damage until your next turn." },
         { SkillType.Wait, "Do nothing." },
     };
     static Dictionary<EntityTrait, string> TRAIT_NAMES = new Dictionary<EntityTrait, string> {
         { EntityTrait.DoubleDamage, "Double Damage" },
         { EntityTrait.DoubleMove, "Double Speed" },
         { EntityTrait.Flying, "Flight" },
+        { EntityTrait.ManaBurn, "Mana Burn" },
         { EntityTrait.Radiant, "Radiant" },
         { EntityTrait.UpVision, "Third Eye" },
     };
     static Dictionary<EntityTrait, string> TRAIT_TOOLTIPS = new Dictionary<EntityTrait, string> {
-        { EntityTrait.DoubleDamage, "This enemy deals 20 damage." },
+        { EntityTrait.DoubleDamage, "This enemy deals double damage." },
         { EntityTrait.DoubleMove, "This enemy moves twice every turn." },
         { EntityTrait.Flying, "This enemy can fly over pitfalls and traps." },
+        { EntityTrait.ManaBurn, "You lose 3 MP whenever this enemy attacks you." },
         { EntityTrait.Radiant, "At the end of this enemy's turn, you take 5 damage if you're next to it." },
         { EntityTrait.UpVision, "This enemy can see you from the floor below." },
     };
@@ -59,30 +63,39 @@ public class TooltipScript : MonoBehaviour
         lastTile = tile;
         float totalHeight = 0;
         foreach (Entity entity in tile.entities) {
-            if (entity.type == EntityType.Player) {
-                continue;
-            }
-            foreach (EntityTrait trait in entity.traits) {
-                Image icon = MakeIcon();
-                foreach (Sprite sprite in traitIcons) {
-                    if (sprite.name == trait.ToString()) {
-                        icon.sprite = sprite;
-                        break;
+            if (entity.type == EntityType.Enemy) {
+                foreach (EntityTrait trait in entity.traits) {
+                    Sprite sprite = null;
+                    foreach (Sprite s in traitIcons) {
+                        if (s.name == trait.ToString()) {
+                            sprite = s;
+                            break;
+                        }
                     }
+                    totalHeight = MakeBlock(totalHeight, sprite, TRAIT_NAMES[trait], TRAIT_TOOLTIPS[trait]);
                 }
-                icon.transform.Translate(0, -totalHeight, 0, Space.World);
-                TextMeshProUGUI header = MakeText();
-                header.text = TRAIT_NAMES[trait];
-                header.transform.Translate(0, -totalHeight, 0);
-                totalHeight += header.preferredHeight + POST_TITLE_OFFSET;
-                TextMeshProUGUI body = MakeText();
-                body.text = TRAIT_TOOLTIPS[trait];
-                body.font = fontRegular;
-                body.fontSize *= .8f;
-                body.transform.Translate(0, -totalHeight, 0);
-                totalHeight += body.preferredHeight + POST_BODY_OFFSET;
+            } else if (entity.type == EntityType.Trap) {
+                totalHeight = MakeBlock(totalHeight, null, "Trap", "Damages anything that walks over it.");
             }
         }
+    }
+    float MakeBlock(float totalHeight, Sprite sprite, string headerText, string bodyText) {
+        if (sprite != null) {
+            Image icon = MakeIcon();
+            icon.sprite = sprite;
+            icon.transform.Translate(0, -totalHeight, 0, Space.World);
+        }
+        TextMeshProUGUI header = MakeText();
+        header.text = headerText;
+        header.transform.Translate(0, -totalHeight, 0);
+        totalHeight += header.preferredHeight + POST_TITLE_OFFSET;
+        TextMeshProUGUI body = MakeText();
+        body.text = bodyText;
+        body.font = fontRegular;
+        body.fontSize *= .8f;
+        body.transform.Translate(0, -totalHeight, 0);
+        totalHeight += body.preferredHeight + POST_BODY_OFFSET;
+        return totalHeight;
     }
 
     public void HoverSkill(Skill skill) {

@@ -175,6 +175,9 @@ public class GameManagerScript : MonoBehaviour
             MakeNewFloor();
             return;
         }
+        if (player.traits.Has(EntityTrait.ExtraPlayerMove)) {
+            return;
+        }
         EnemyMoves(false);
         EnemyMoves(true);
     }

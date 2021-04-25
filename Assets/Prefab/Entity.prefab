@@ -546,12 +546,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hpPipPrefab: {fileID: 8731318167941554766, guid: df2c4daa96714cb47874e44265d350e7,
     type: 3}
+  spikesPrefab: {fileID: 7724450761304691283, guid: 4a0f45fdacd0dcd4d85bf12239f24757,
+    type: 3}
   traitSprites:
   - {fileID: 21300000, guid: 605a3dc1208d34841ba900a03429b3f0, type: 3}
   - {fileID: 21300000, guid: a650682e12e4c5e439aadd831a6d3f51, type: 3}
   - {fileID: 21300000, guid: e9ce3e9391c734e4bb413da40e000436, type: 3}
   - {fileID: 21300000, guid: cb56fb13994f5014396f59f6a9ee608f, type: 3}
   - {fileID: 21300000, guid: 7829fbacc5f1ef74fb887abdb9405ca4, type: 3}
+  - {fileID: 21300000, guid: dcbbb9d0140b8ff4d8675bdc585ff605, type: 3}
   meshRenderer: {fileID: 8602661756067040329}
   spriteRenderer: {fileID: 9018124270180101685}
   shadowRenderer: {fileID: 7585084530088332167}

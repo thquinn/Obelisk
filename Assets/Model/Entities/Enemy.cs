@@ -25,6 +25,9 @@ namespace Assets.Model.Entities {
                 traits.Add(EntityTrait.Flying);
             }
             if (UnityEngine.Random.value < .33f) {
+                traits.Add(EntityTrait.ManaBurn);
+            }
+            if (UnityEngine.Random.value < .33f) {
                 traits.Add(EntityTrait.Radiant);
             }
             if (UnityEngine.Random.value < .33f) {

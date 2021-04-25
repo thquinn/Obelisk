@@ -13,10 +13,10 @@ public class EntityScript : MonoBehaviour
     static float GRAVITY = .02f;
     static Color COLOR_PLAYER_MARKER = new Color(1, 0, 0, 0);
     static float PIP_OFFSET = .1f;
-    static HashSet<EntityTrait> BEHIND_TRAITS = new HashSet<EntityTrait> { EntityTrait.DoubleMove, EntityTrait.Radiant };
-    static HashSet<EntityTrait> KEEP_TINT_TRAITS = new HashSet<EntityTrait> { EntityTrait.DoubleMove };
+    static HashSet<EntityTrait> BEHIND_TRAITS = new HashSet<EntityTrait> { EntityTrait.DoubleMove, EntityTrait.ManaBurn, EntityTrait.Radiant };
+    static HashSet<EntityTrait> KEEP_TINT_TRAITS = new HashSet<EntityTrait> { EntityTrait.DoubleMove, EntityTrait.ManaBurn };
 
-    public GameObject hpPipPrefab;
+    public GameObject hpPipPrefab, spikesPrefab;
     public Sprite[] traitSprites;
 
     public MeshRenderer meshRenderer;
@@ -41,11 +41,15 @@ public class EntityScript : MonoBehaviour
                 sr.enabled = true;
                 sr.color = COLOR_PLAYER_MARKER;
             }
-        } else {
+        } else if (entity.type == EntityType.Enemy) {
             meshRenderer.enabled = false;
             spritePivot.transform.localRotation = Camera.main.transform.localRotation;
             SetSprites();
             MakeHPPips();
+        } else if (entity.type == EntityType.Trap) {
+            meshRenderer.enabled = false;
+            spriteRenderer.enabled = false;
+            Instantiate(spikesPrefab, transform);
         }
         Update(1, 1);
     }
@@ -151,10 +155,10 @@ public class EntityScript : MonoBehaviour
         }
         // HP pips.
         if (pips != null && entity.hp.Item1 != lastHP) {
-            for (int i = 0; i < pips.Count; i++) {
-                pips[i].color = i < lastHP - 1 ? Color.red : Color.black;
-            }
             lastHP = entity.hp.Item1;
+            for (int i = 0; i < pips.Count; i++) {
+                pips[i].color = i < lastHP ? Color.red : Color.black;
+            }
         }
         // Markers.
         float dAlpha = -.1f;

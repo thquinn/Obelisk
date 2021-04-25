@@ -43,16 +43,31 @@ namespace Assets.Model {
             tile.entities.Remove(this);
             tile = newTile;
             tile.entities.Add(this);
+            foreach (Entity e in tile.entities) {
+                if (e != this) {
+                    e.OnEnterMyTile(this);
+                }
+            }
         }
 
         public void Attack(Entity entity) {
-            Attack(entity, baseDamage);
+            Attack(entity, CalculateDamage(entity));
         }
         public void Attack(Entity entity, int damage) {
             if (traits.Has(EntityTrait.DoubleDamage)) {
                 damage *= 2;
             }
+            if (entity.traits.Has(EntityTrait.Invulnerable)) {
+                damage = 0;
+            }
             entity.hp.Item1 = Mathf.Max(0, entity.hp.Item1 - damage);
+            if (type == EntityType.Enemy && entity.type == EntityType.Player) {
+                Enemy enemy = (Enemy)this;
+                Player player = (Player)entity;
+                if (enemy.traits.Has(EntityTrait.ManaBurn)) {
+                    player.mp.Item1 = Mathf.Max(0, player.mp.Item1 - 3);
+                }
+            }
             if (entity.hp.Item1 == 0) {
                 entity.destroyed = true;
                 if (type == EntityType.Player && entity.type == EntityType.Enemy) {
@@ -62,25 +77,28 @@ namespace Assets.Model {
                 }
             }
         }
+        public virtual int CalculateDamage(Entity target) {
+            return baseDamage;
+        }
 
         public virtual void OnTurnEnd() {
             traits.Decrement();
         }
+        public virtual void OnEnterMyTile(Entity other) { }
 
         public virtual Coor GetMove() {
             return null;
         }
-
-        public bool IsBlocking() {
+        public virtual bool IsBlocking() {
             return true;
         }
-        public bool ShowShadow() {
+        public virtual bool ShowShadow() {
             return tile.type != TileType.Exit;
         }
     }
 
     public enum EntityType {
-        Player, Enemy
+        Player, Enemy, Trap
     }
     
     public enum MoveResult {
@@ -88,6 +106,6 @@ namespace Assets.Model {
     }
 
     public enum EntityTrait {
-        DoubleDamage, DoubleMove, Flying, Phasing, Radiant, UpVision
+        DoubleDamage, DoubleMove, ExtraPlayerMove, Flying, Invulnerable, ManaBurn, Phasing, Radiant, UpVision
     }
 }
