@@ -14,6 +14,7 @@ namespace Assets.Model {
         public HashSet<Coor> wallsRight, wallsBelow;
         public Floor previous;
         public Coor entrance;
+        public bool playerOnFloor;
 
         public Floor(int n, Floor previous) {
             this.number = n;
@@ -21,6 +22,7 @@ namespace Assets.Model {
             if (previous != null) {
                 entrance = previous.FindExit();
             }
+            playerOnFloor = n == 0;
             tiles = new Tile[7, 7];
             int[] shuffled = Enumerable.Range(0, tiles.Length).ToArray().Shuffle();
             int exitPosition = shuffled[0];

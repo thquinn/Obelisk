@@ -23,6 +23,9 @@ namespace Assets.Model {
         }
 
         public bool IsPassable(Entity entity) {
+            if (entity.type == EntityType.Enemy && ContainsTrap() && !entity.traits.Has(EntityTrait.Flying) && !floor.playerOnFloor) {
+                return false;
+            }
             switch (type) {
                 case TileType.Floor:
                     return entity.type == EntityType.Player || !coor.Equals(floor.entrance);
@@ -41,6 +44,14 @@ namespace Assets.Model {
         }
         public bool ContainsBlockingEntity() {
             return GetBlockingEntity() != null;
+        }
+        public bool ContainsTrap() {
+            foreach (Entity e in entities) {
+                if (e.type == EntityType.Trap) {
+                    return true;
+                }
+            }
+            return false;
         }
         public List<Tile> GetNeighbors() {
             List<Tile> neighbors = new List<Tile>();

@@ -34,13 +34,13 @@ public class GameManagerScript : MonoBehaviour
 
     void Start()
     {
-        // TEST
+        /* TEST
         for (int i = 0; i < 1000; i++) {
             Player p = new Player(null);
             p.GainXP(10);
             Debug.Log(p.skills[0].type.ToString());
         }
-        // END TEST
+        */// END TEST
 
         Application.targetFrameRate = 60;
         cam = Camera.main;
@@ -170,7 +170,9 @@ public class GameManagerScript : MonoBehaviour
             cameraMoveStartY = cam.transform.localPosition.y;
             Floor nextFloor = floors[floors.Count - 1];
             Tile landingTile = nextFloor.tiles[player.tile.x, player.tile.y];
+            player.tile.floor.playerOnFloor = false;
             player.MoveTo(landingTile);
+            player.tile.floor.playerOnFloor = true;
             player.OnNewFloor();
             MakeNewFloor();
             return;

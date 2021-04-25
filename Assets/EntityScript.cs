@@ -1,4 +1,5 @@
-﻿using Assets.Model;
+﻿using Assets;
+using Assets.Model;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -13,6 +14,8 @@ public class EntityScript : MonoBehaviour
     static float GRAVITY = .02f;
     static Color COLOR_PLAYER_MARKER = new Color(1, 0, 0, 0);
     static float PIP_OFFSET = .1f;
+    static int ANIMATION_FRAMES = 7;
+    static float ANIMATION_STRENGTH = .4f;
     static HashSet<EntityTrait> BEHIND_TRAITS = new HashSet<EntityTrait> { EntityTrait.DoubleMove, EntityTrait.ManaBurn, EntityTrait.Radiant };
     static HashSet<EntityTrait> KEEP_TINT_TRAITS = new HashSet<EntityTrait> { EntityTrait.DoubleMove, EntityTrait.ManaBurn };
 
@@ -31,6 +34,8 @@ public class EntityScript : MonoBehaviour
     List<SpriteRenderer> pips;
     int lastHP;
     SpriteRenderer radiantRenderer;
+    Vector2 animationStartXZ, animationTargetXZ;
+    int animationFramesLeft;
 
     public void Initialize(FloorScript floorScript, Entity entity) {
         this.floorScript = floorScript;
@@ -118,21 +123,39 @@ public class EntityScript : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-        // Movement.
         Vector2 targetXZ = floorScript.GetXZ(entity.tile.Coor());
-        float x = Mathf.Lerp(transform.localPosition.x, targetXZ.x, lerpMovement);
-        float z = Mathf.Lerp(transform.localPosition.z, targetXZ.y, lerpMovement);
-        float y = 0;
-        if (fallMode) {
-            dy += GRAVITY;
-            y = transform.localPosition.y - dy;
-            if (y <= 0) {
-                y = 0;
-                dy = 0;
-                fallMode = false;
-            }
+        float distance = (targetXZ - new Vector2(transform.localPosition.x, transform.localPosition.z)).sqrMagnitude;
+        if (distance < .1f && entity.animationTarget != null) {
+            animationStartXZ = new Vector2(transform.localPosition.x, transform.localPosition.z);
+            animationTargetXZ = floorScript.GetXZ(entity.animationTarget.tile.Coor());
+            Vector2 direction = (animationTargetXZ - animationStartXZ).normalized;
+            animationTargetXZ -= direction * (1 - ANIMATION_STRENGTH);
+            animationFramesLeft = ANIMATION_FRAMES;
+            entity.animationTarget = null;
         }
-        transform.localPosition = new Vector3(x, y, z);
+        if (animationFramesLeft > 0) {
+            // Attack animation.
+            float t = 1 - animationFramesLeft / (float)ANIMATION_FRAMES;
+            float x = EasingFunctions.EaseInOutQuad(animationStartXZ.x, animationTargetXZ.x, t);
+            float z = EasingFunctions.EaseInOutQuad(animationStartXZ.y, animationTargetXZ.y, t);
+            transform.localPosition = new Vector3(x, 0, z);
+            animationFramesLeft--;
+        } else {
+            // Movement.
+            float x = Mathf.Lerp(transform.localPosition.x, targetXZ.x, lerpMovement);
+            float z = Mathf.Lerp(transform.localPosition.z, targetXZ.y, lerpMovement);
+            float y = 0;
+            if (fallMode) {
+                dy += GRAVITY;
+                y = transform.localPosition.y - dy;
+                if (y <= 0) {
+                    y = 0;
+                    dy = 0;
+                    fallMode = false;
+                }
+            }
+            transform.localPosition = new Vector3(x, y, z);
+        }
         // Radiant.
         if (radiantRenderer != null) {
             radiantRenderer.transform.Rotate(Vector3.forward, .5f);

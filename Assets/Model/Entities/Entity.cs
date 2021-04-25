@@ -15,6 +15,7 @@ namespace Assets.Model {
         public int baseDamage;
         public bool destroyed;
         public EntityTraits traits;
+        public Entity animationTarget;
 
         public Entity(Tile tile) {
             this.tile = tile;
@@ -61,6 +62,7 @@ namespace Assets.Model {
                 damage = 0;
             }
             entity.hp.Item1 = Mathf.Max(0, entity.hp.Item1 - damage);
+            // Mana burn.
             if (type == EntityType.Enemy && entity.type == EntityType.Player) {
                 Enemy enemy = (Enemy)this;
                 Player player = (Player)entity;
@@ -68,6 +70,7 @@ namespace Assets.Model {
                     player.mp.Item1 = Mathf.Max(0, player.mp.Item1 - 3);
                 }
             }
+            // Destroy effects.
             if (entity.hp.Item1 == 0) {
                 entity.destroyed = true;
                 if (type == EntityType.Player && entity.type == EntityType.Enemy) {
@@ -75,6 +78,11 @@ namespace Assets.Model {
                     Enemy enemy = (Enemy)entity;
                     player.GainXP(5);
                 }
+            }
+            // Animation.
+            if ((type == EntityType.Player || entity.type == EntityType.Player) &&
+                (type == EntityType.Enemy || entity.type == EntityType.Enemy)) {
+                animationTarget = entity;
             }
         }
         public virtual int CalculateDamage(Entity target) {

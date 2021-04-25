@@ -101,18 +101,11 @@ public class TooltipScript : MonoBehaviour
     public void HoverSkill(Skill skill) {
         Clear();
         lastSkill = skill;
-        TextMeshProUGUI tmp = MakeText();
-        tmp.text = Skill.NAMES[skill.type];
-        float height = tmp.preferredHeight;
-        tmp = MakeText();
         string text = SKILL_TOOLTIPS[skill.type];
         if (Skill.USES_TURN.Contains(skill.type)) {
             text += USES_TURN;
         }
-        tmp.text = text;
-        tmp.font = fontRegular;
-        tmp.fontSize *= .8f;
-        tmp.transform.Translate(0, -height - POST_TITLE_OFFSET, 0);
+        MakeBlock(0, null, Skill.NAMES[skill.type], text);
     }
     public void UnhoverSkill(Skill skill) {
         if (lastSkill != skill) {
