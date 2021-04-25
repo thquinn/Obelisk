@@ -4,12 +4,13 @@ using Assets.Model.Entities;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Coor = System.Tuple<int, int>;
 
 public class GameManagerScript : MonoBehaviour
 {
     static float FLOOR_HEIGHT = 6f;
-    static float FLOOR_HEIGHT_OFFSET = 3f;
-    static float LERP_FLOOR = .05f;
+    static float FLOOR_HEIGHT_OFFSET = 2.2f;
+    static float LERP_FLOOR = .1f;
     static float CAMERA_SIZE = 6;
     static int WAIT_FRAMES = 5;
     static int CAMERA_MOVE_FRAMES = 40;
@@ -75,17 +76,19 @@ public class GameManagerScript : MonoBehaviour
         if (nextFloorNumber == 2) {
             return;
         }
-        if (!playerScript.fallMode && cameraMoveFrames > 0) {
-            float t = cameraMoveFrames / (float)CAMERA_MOVE_FRAMES;
+        if (!playerScript.fallMode) {
             for (int i = 0; i < floorScripts.Count; i++) {
                 int floorNumber = nextFloorNumber - floorScripts.Count + i;
                 FloorScript floorScript = floorScripts[i];
-                float floorY = -FLOOR_HEIGHT * floorNumber;
-                if (i == 0 && floorScripts.Count > 2) {
-                    floorY += FLOOR_HEIGHT_OFFSET * t;
+                if (i == 0 && floors.Count > 2) {
+                    floorScript.dy += .03f;
                 }
+                float floorY = -FLOOR_HEIGHT * floorNumber + floorScript.dy;
                 floorScript.transform.localPosition = Vector3.Lerp(floorScript.transform.localPosition, new Vector3(0, floorY, 0), LERP_FLOOR);
             }
+        }
+        if (!playerScript.fallMode && cameraMoveFrames > 0) {
+            float t = cameraMoveFrames / (float)CAMERA_MOVE_FRAMES;
             float targetY = (nextFloorNumber - 1.5f) * -FLOOR_HEIGHT + cameraInitialY;
             float y = EasingFunctions.EaseInOutQuad(cameraMoveStartY, targetY, t);
             cam.transform.localPosition = new Vector3(cam.transform.localPosition.x, y, cam.transform.localPosition.z);
@@ -133,6 +136,29 @@ public class GameManagerScript : MonoBehaviour
             Tile landingTile = nextFloor.tiles[player.tile.x, player.tile.y];
             player.MoveTo(landingTile);
             MakeNewFloor();
+            return;
+        }
+        // Enemies choose where they want to move.
+        Dictionary<Entity, Coor> intents = new Dictionary<Entity, Coor>();
+        for (int i = Mathf.Max(0, floors.Count - 2); i < floors.Count; i++) {
+            foreach (Tile tile in floors[i].tiles) {
+                foreach (Entity entity in tile.entities) {
+                    if (entity.type != EntityType.Enemy) {
+                        continue;
+                    }
+                    Coor intent = entity.GetMove();
+                    if (intent != null) {
+                        intents[entity] = intent;
+                    }
+                }
+            }
+        }
+        // TODO: All enemies simultaneously move to maximize the number moved.
+        // For now, let's just try to move stupidly.
+        foreach (var kvp in intents) {
+            int dx = kvp.Value.Item1 - kvp.Key.tile.x;
+            int dy = kvp.Value.Item2 - kvp.Key.tile.y;
+            kvp.Key.TryMove(dx, dy);
         }
     }
 }

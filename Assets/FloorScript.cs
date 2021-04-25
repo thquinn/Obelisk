@@ -9,6 +9,7 @@ public class FloorScript : MonoBehaviour
     public GameObject prefabTile, prefabEntity, prefabWall;
 
     Floor floor;
+    public float dy = 0;
 
     public void Initialize(Floor floor) {
         this.floor = floor;

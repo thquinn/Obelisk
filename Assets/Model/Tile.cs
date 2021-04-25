@@ -29,6 +29,14 @@ namespace Assets.Model {
             }
             throw new Exception("Unhandled passability case.");
         }
+        public bool ContainsBlockingEntity() {
+            foreach (Entity e in entities) {
+                if (e.IsBlocking()) {
+                    return true;
+                }
+            }
+            return false;
+        }
         public List<Tile> GetNeighbors() {
             List<Tile> neighbors = new List<Tile>();
             if (x > 0) {

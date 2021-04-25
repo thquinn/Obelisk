@@ -9,9 +9,5 @@ namespace Assets.Model.Entities {
         public Player(Tile tile) : base(tile) {
             type = EntityType.Player;
         }
-
-        public override bool ShowShadow() {
-            return tile.type != TileType.Exit;
-        }
     }
 }

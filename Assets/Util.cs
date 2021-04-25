@@ -20,9 +20,13 @@ namespace Assets {
                 Coor currentCoor = queue.Dequeue();
                 Tile currentTile = floor.tiles[currentCoor.Item1, currentCoor.Item2];
                 List<Tile> neighbors = currentTile.GetNeighbors();
+                neighbors.Shuffle();
                 foreach (Tile neighbor in neighbors) {
                     Coor neighborCoor = new Coor(neighbor.x, neighbor.y);
                     if (parents.ContainsKey(neighborCoor)) {
+                        continue;
+                    }
+                    if (!currentTile.floor.CanPassBetween(currentCoor, neighborCoor, entity)) {
                         continue;
                     }
                     parents[neighborCoor] = currentCoor;
@@ -53,6 +57,16 @@ namespace Assets {
                 array[i] = t;
             }
             return array;
+        }
+        public static List<T> Shuffle<T>(this List<T> list) {
+            int n = list.Count;
+            for (int i = 0; i < n; i++) {
+                int r = i + UnityEngine.Random.Range(0, n - i);
+                T t = list[r];
+                list[r] = list[i];
+                list[i] = t;
+            }
+            return list;
         }
     }
 }

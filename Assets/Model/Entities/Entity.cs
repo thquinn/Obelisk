@@ -26,6 +26,9 @@ namespace Assets.Model {
             if (!tile.floor.CanPassBetween(new Coor(tile.x, tile.y), new Coor(newTile.x, newTile.y), this)) {
                 return false;
             }
+            if (newTile.ContainsBlockingEntity()) {
+                return false;
+            }
             MoveTo(newTile);
             return true;
         }
@@ -35,10 +38,19 @@ namespace Assets.Model {
             tile.entities.Add(this);
         }
 
-        public abstract bool ShowShadow();
+        public virtual Coor GetMove() {
+            return null;
+        }
+
+        public bool IsBlocking() {
+            return true;
+        }
+        public bool ShowShadow() {
+            return tile.type != TileType.Exit;
+        }
     }
 
     public enum EntityType {
-        Player
+        Player, Enemy
     }
 }

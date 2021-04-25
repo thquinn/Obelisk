@@ -9,14 +9,18 @@ namespace Assets.Model {
     public class Floor {
         static int FLOORGEN_IDEAL_ENTRANCE_TO_EXIT_DISTANCE = 12;
 
+        public int number;
         public Tile[,] tiles;
         public HashSet<Coor> wallsRight, wallsBelow;
 
         public Floor(int n) {
+            this.number = n;
             tiles = new Tile[7, 7];
             int[] shuffled = Enumerable.Range(0, tiles.Length).ToArray().Shuffle();
             int exitPosition = shuffled[0];
             int playerPosition = n == 0 ? shuffled[1] : -1;
+            int enemyPosition = shuffled[2];
+            int enemyPosition2 = shuffled[3];
             // Place tiles, exit, and player.
             for (int x = 0; x < Width(); x++) {
                 for (int y = 0; y < Height(); y++) {
@@ -25,6 +29,9 @@ namespace Assets.Model {
                     tiles[x, y] = tile;
                     if (position == playerPosition) {
                         tile.entities.Add(new Player(tile));
+                    }
+                    if (position == enemyPosition || position == enemyPosition2) {
+                        tile.entities.Add(new MeleeEnemy(tile));
                     }
                 }
             }
@@ -91,10 +98,20 @@ namespace Assets.Model {
             Coor entrance = previous.FindExit();
             Coor exit = FindExit();
             List<Coor> path = Util.FindPath(this, entrance, exit, new Player(tiles[entrance.Item1, entrance.Item2])); // pass a new Player since player upgrades shouldn't affect mapgen
-            if (path == null) {
+            if (path == null) { // There is no path to the exit.
                 return float.MinValue;
             }
-            return -Mathf.Abs(path.Count - FLOORGEN_IDEAL_ENTRANCE_TO_EXIT_DISTANCE);
+            float score = -Mathf.Abs(path.Count - FLOORGEN_IDEAL_ENTRANCE_TO_EXIT_DISTANCE);
+            if (path.Count == 1) { // The exit is directly below the entrance.
+                score -= 1000;
+            }
+            if (IsExitInCorner()) {
+                score -= 4;
+            }
+            return score;
+        }
+        private bool IsExitInCorner() {
+            return tiles[0, 0].type == TileType.Exit || tiles[Width() - 1, 0].type == TileType.Exit || tiles[0, Height() - 1].type == TileType.Exit || tiles[Width() - 1, Height() - 1].type == TileType.Exit;
         }
     }
 }
