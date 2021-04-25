@@ -50,7 +50,7 @@ public class GameManagerScript : MonoBehaviour
     }
 
     void MakeNewFloor() {
-        Floor floor = nextFloorNumber == 0 ? new Floor(0) : Floor.Generate(nextFloorNumber, floors[floors.Count - 1], 100);
+        Floor floor = nextFloorNumber == 0 ? new Floor(0, null) : Floor.Generate(nextFloorNumber, floors[floors.Count - 1], 100);
         floors.Add(floor);
         FloorScript floorScript = Instantiate(floorPrefab).GetComponent<FloorScript>();
         floorScript.Initialize(floor);
@@ -112,6 +112,9 @@ public class GameManagerScript : MonoBehaviour
     }
 
     bool PlayerMovement() {
+        if (player.destroyed) {
+            return false;
+        }
         // TODO: Simultaneous movement
         MoveResult result = MoveResult.NoMove;
         int dx = 0, dy = 0;
@@ -123,6 +126,8 @@ public class GameManagerScript : MonoBehaviour
             dy = -1;
         } else if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow)) {
             dy = 1;
+        } else {
+            return false;
         }
         result = player.TryMove(dx, dy);
         if (result == MoveResult.Attack) {

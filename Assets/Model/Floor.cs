@@ -12,9 +12,11 @@ namespace Assets.Model {
         public int number;
         public Tile[,] tiles;
         public HashSet<Coor> wallsRight, wallsBelow;
+        public Floor previous;
 
-        public Floor(int n) {
+        public Floor(int n, Floor previous) {
             this.number = n;
+            this.previous = previous;
             tiles = new Tile[7, 7];
             int[] shuffled = Enumerable.Range(0, tiles.Length).ToArray().Shuffle();
             int exitPosition = shuffled[0];
@@ -50,8 +52,8 @@ namespace Assets.Model {
             Floor bestFloor = null;
             float bestScore = float.MinValue;
             for (int i = 0; i < 100; i++) {
-                Floor floor = new Floor(number);
-                float score = floor.ScoreSuitability(previous);
+                Floor floor = new Floor(number, previous);
+                float score = floor.ScoreSuitability();
                 if (score >= bestScore) {
                     bestFloor = floor;
                     bestScore = score;
@@ -71,6 +73,16 @@ namespace Assets.Model {
                 for (int y = 0; y < Height(); y++) {
                     if (tiles[x, y].type == TileType.Exit) {
                         return new Coor(x, y);
+                    }
+                }
+            }
+            return null;
+        }
+        public Player FindPlayer() {
+            foreach (Tile t in tiles) {
+                foreach (Entity e in t.entities) {
+                    if (e.type == EntityType.Player) {
+                        return (Player)e;
                     }
                 }
             }
@@ -100,7 +112,7 @@ namespace Assets.Model {
             }
         }
 
-        public float ScoreSuitability(Floor previous) {
+        public float ScoreSuitability() {
             Coor entrance = previous.FindExit();
             Coor exit = FindExit();
             List<Coor> path = Util.FindPath(this, entrance, exit, new Player(tiles[entrance.Item1, entrance.Item2])); // pass a new Player since player upgrades shouldn't affect mapgen

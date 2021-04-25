@@ -13,10 +13,12 @@ namespace Assets.Model {
         public ValueTuple<int, int> hp, mp;
         public int baseDamage;
         public bool destroyed;
+        public EntityTraits traits;
 
         public Entity(Tile tile) {
             this.tile = tile;
             destroyed = false;
+            traits = new EntityTraits();
         }
 
         public MoveResult TryMove(int dx, int dy) {
@@ -43,6 +45,7 @@ namespace Assets.Model {
         }
 
         public void Attack(Entity entity) {
+            Debug.Log(string.Format("Entity at ({0}, {1}) attacked entity at ({2}, {3}).", tile.x, tile.y, entity.tile.x, entity.tile.y));
             entity.hp.Item1 = Mathf.Max(0, entity.hp.Item1 - baseDamage);
             if (entity.hp.Item1 == 0) {
                 entity.destroyed = true;
@@ -67,5 +70,9 @@ namespace Assets.Model {
     
     public enum MoveResult {
         NoMove, Move, Attack
+    }
+
+    public enum EntityTrait {
+        UpVision
     }
 }
