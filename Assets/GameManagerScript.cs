@@ -75,7 +75,21 @@ public class GameManagerScript : MonoBehaviour
     }
 
     void Update() {
+        if (Input.GetKeyDown(KeyCode.S)) {
+            player.LearnSkill();
+        }
         UpdateCameraAndFloors();
+        // Skill replacement.
+        if (player.replacementSkill != SkillType.None && clickedSkill != null) {
+            for (int i = 0; i < player.skills.Length; i++) {
+                if (player.skills[i] == clickedSkill) {
+                    player.skills[i] = new Skill(player, player.replacementSkill);
+                    player.replacementSkill = SkillType.None;
+                    break;
+                }
+            }
+        }
+        // Player action.
         if (ReadyForMove()) {
             if (PlayerMovement() || PlayerSkills()) {
                 player.OnTurnEnd();

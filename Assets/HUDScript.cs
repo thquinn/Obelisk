@@ -55,6 +55,8 @@ public class HUDScript : MonoBehaviour
         Vector3 xpImageScale = xpImage.transform.localScale;
         xpImageScale.x = Mathf.Lerp(xpImageScale.x, Mathf.Max(0, player.xp.Item1) / player.xp.Item2, .1f);
         xpImage.transform.localScale = xpImageScale;
+        // Skill replacement.
+
     }
     void SetTexts() {
         hpText.text = string.Format("{0}/{1}", player.hp.Item1, player.hp.Item2);

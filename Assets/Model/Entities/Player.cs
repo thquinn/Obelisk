@@ -62,7 +62,7 @@ namespace Assets.Model.Entities {
                 LearnSkill();
             }
         }
-        void LearnSkill() {
+        public void LearnSkill() {
             float selector = Util.GetRandomAbsStandardDeviations() * level * 100;
             SkillType toLearn = SkillType.None;
             foreach (var t in SKILL_LEVEL_WEIGHTS) {
