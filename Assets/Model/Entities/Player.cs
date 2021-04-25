@@ -19,6 +19,7 @@ namespace Assets.Model.Entities {
         public ValueTuple<float, float> xp;
         HashSet<SkillType> skillsToLearn;
         public SkillType replacementSkill;
+        int turnsOnFloor;
 
         public Player(Tile tile) : base(tile) {
             type = EntityType.Player;
@@ -37,12 +38,18 @@ namespace Assets.Model.Entities {
 
         public override void OnTurnEnd() {
             base.OnTurnEnd();
+            turnsOnFloor++;
             foreach (Skill skill in skills) {
                 if (skill != null) {
                     skill.DecrementCooldown();
                 }
             }
-            xp.Item1 = Mathf.Max(0, xp.Item1 - .01f);
+            if (turnsOnFloor > 25) {
+                xp.Item1 -= xp.Item2 * .001f;
+            }
+        }
+        public void OnNewFloor() {
+            turnsOnFloor = 0;
         }
 
         public void GainXP(float gain) {

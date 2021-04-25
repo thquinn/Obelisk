@@ -53,7 +53,7 @@ public class HUDScript : MonoBehaviour
         mpImageScale.x = Mathf.Lerp(mpImageScale.x, player.mp.Item1 / (float)player.mp.Item2, .1f);
         mpImage.transform.localScale = mpImageScale;
         Vector3 xpImageScale = xpImage.transform.localScale;
-        xpImageScale.x = Mathf.Lerp(xpImageScale.x, player.xp.Item1 / player.xp.Item2, .1f);
+        xpImageScale.x = Mathf.Lerp(xpImageScale.x, Mathf.Max(0, player.xp.Item1) / player.xp.Item2, .1f);
         xpImage.transform.localScale = xpImageScale;
     }
     void SetTexts() {

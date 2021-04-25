@@ -13,6 +13,8 @@ public class EntityScript : MonoBehaviour
     static float GRAVITY = .02f;
     static Color COLOR_PLAYER_MARKER = new Color(1, 0, 0, 0);
     static float PIP_OFFSET = .1f;
+    static HashSet<EntityTrait> BEHIND_TRAITS = new HashSet<EntityTrait> { EntityTrait.DoubleMove, EntityTrait.Radiant };
+    static HashSet<EntityTrait> KEEP_TINT_TRAITS = new HashSet<EntityTrait> { EntityTrait.DoubleMove };
 
     public GameObject hpPipPrefab;
     public Sprite[] traitSprites;
@@ -25,9 +27,10 @@ public class EntityScript : MonoBehaviour
     FloorScript floorScript;
     public Entity entity;
     public bool fallMode = false;
-    float dy;
+    float dy, hpPivotInitialY;
     List<SpriteRenderer> pips;
     int lastHP;
+    SpriteRenderer radiantRenderer;
 
     public void Initialize(FloorScript floorScript, Entity entity) {
         this.floorScript = floorScript;
@@ -51,6 +54,7 @@ public class EntityScript : MonoBehaviour
         for (int i = spritePivot.transform.childCount - 1; i >= 1; i++) {
             Destroy(spritePivot.transform.GetChild(i).gameObject);
         }
+        radiantRenderer = null;
         foreach (Sprite traitSprite in traitSprites) {
             EntityTrait trait;
             if (!Enum.TryParse<EntityTrait>(traitSprite.name, out trait) || !entity.traits.Has(trait)) {
@@ -59,15 +63,24 @@ public class EntityScript : MonoBehaviour
             if (trait == EntityTrait.Flying) {
                 spritePivot.transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = traitSprite;
             } else {
-                SpriteRenderer traitRenderer = Instantiate(spritePivot.transform.GetChild(spritePivot.transform.childCount - 1), spritePivot.transform).GetComponent<SpriteRenderer>();
+                SpriteRenderer traitRenderer = Instantiate(spritePivot.transform.GetChild(0), spritePivot.transform).GetComponent<SpriteRenderer>();
                 traitRenderer.sprite = traitSprite;
-                traitRenderer.color = Color.white;
+                if (BEHIND_TRAITS.Contains(trait)) {
+                    traitRenderer.transform.Translate(0, 0, .01f);
+                }
+                if (!KEEP_TINT_TRAITS.Contains(trait)) {
+                    traitRenderer.color = Color.white;
+                }
+                if (trait == EntityTrait.Radiant) {
+                    radiantRenderer = traitRenderer;
+                }
             }
         }
     }
     void MakeHPPips() {
         hpPivot.transform.localRotation = spritePivot.transform.localRotation;
         hpPivot.transform.Translate(0, .25f, -.5f);
+        hpPivotInitialY = hpPivot.transform.localPosition.y;
         pips = new List<SpriteRenderer>();
         int pipCount = entity.hp.Item2;
         lastHP = pipCount;
@@ -116,10 +129,17 @@ public class EntityScript : MonoBehaviour
             }
         }
         transform.localPosition = new Vector3(x, y, z);
+        // Radiant.
+        if (radiantRenderer != null) {
+            radiantRenderer.transform.Rotate(Vector3.forward, .5f);
+        }
         // Floating.
         Vector3 spritePivotPosition = spritePivot.transform.localPosition;
-        spritePivotPosition.y = entity.traits.Has(EntityTrait.Flying) ? Mathf.Sin(Time.frameCount * .01f) * .1f : 0;
+        spritePivotPosition.y = entity.traits.Has(EntityTrait.Flying) ? Mathf.Sin(Time.frameCount * .02f) * .1f : 0;
         spritePivot.transform.localPosition = spritePivotPosition;
+        Vector3 hpPivotPosition = hpPivot.transform.localPosition;
+        hpPivotPosition.y = hpPivotInitialY + spritePivotPosition.y;
+        hpPivot.transform.localPosition = hpPivotPosition;
         // Shadows.
         bool showShadow = entity.ShowShadow() && dy == 0;
         float shadowAlpha = Mathf.Lerp(shadowRenderer.color.a, showShadow ? SHADOW_ALPHA : 0, lerpShadow);

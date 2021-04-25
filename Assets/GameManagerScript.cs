@@ -171,15 +171,23 @@ public class GameManagerScript : MonoBehaviour
             Floor nextFloor = floors[floors.Count - 1];
             Tile landingTile = nextFloor.tiles[player.tile.x, player.tile.y];
             player.MoveTo(landingTile);
+            player.OnNewFloor();
             MakeNewFloor();
             return;
         }
+        EnemyMoves(false);
+        EnemyMoves(true);
+    }
+    void EnemyMoves(bool secondMove) {
         // Enemies choose where they want to move.
         Dictionary<Entity, Coor> intents = new Dictionary<Entity, Coor>();
         for (int i = Mathf.Max(0, floors.Count - 2); i < floors.Count; i++) {
             foreach (Tile tile in floors[i].tiles) {
                 foreach (Entity entity in tile.entities) {
                     if (entity.type != EntityType.Enemy) {
+                        continue;
+                    }
+                    if (secondMove && !entity.traits.Has(EntityTrait.DoubleMove)) {
                         continue;
                     }
                     Coor intent = entity.GetMove();
@@ -200,7 +208,9 @@ public class GameManagerScript : MonoBehaviour
                 Entity blockingEntity = targetTile.GetBlockingEntity();
                 kvp.Key.Attack(blockingEntity);
             }
-            kvp.Key.OnTurnEnd();
+            if (kvp.Key.traits.Has(EntityTrait.DoubleMove) == secondMove) {
+                kvp.Key.OnTurnEnd();
+            }
         }
     }
 

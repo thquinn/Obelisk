@@ -19,7 +19,13 @@ namespace Assets.Model.Entities {
                 traits.Add(EntityTrait.DoubleDamage);
             }
             if (UnityEngine.Random.value < .33f) {
+                traits.Add(EntityTrait.DoubleMove);
+            }
+            if (UnityEngine.Random.value < .33f) {
                 traits.Add(EntityTrait.Flying);
+            }
+            if (UnityEngine.Random.value < .33f) {
+                traits.Add(EntityTrait.Radiant);
             }
             if (UnityEngine.Random.value < .33f) {
                 traits.Add(EntityTrait.UpVision);
@@ -52,6 +58,18 @@ namespace Assets.Model.Entities {
                 return null;
             }
             return path[1];
+        }
+
+        public override void OnTurnEnd() {
+            if (traits.Has(EntityTrait.Radiant)) {
+                foreach (Tile neighbor in tile.GetNeighbors()) {
+                    Entity e = neighbor.GetBlockingEntity();
+                    if (e != null && e.type == EntityType.Player) {
+                        Attack(e, 5);
+                    }
+                }
+            }
+            base.OnTurnEnd();
         }
     }
 }

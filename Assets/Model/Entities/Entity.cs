@@ -46,7 +46,9 @@ namespace Assets.Model {
         }
 
         public void Attack(Entity entity) {
-            int damage = baseDamage;
+            Attack(entity, baseDamage);
+        }
+        public void Attack(Entity entity, int damage) {
             if (traits.Has(EntityTrait.DoubleDamage)) {
                 damage *= 2;
             }
@@ -86,6 +88,6 @@ namespace Assets.Model {
     }
 
     public enum EntityTrait {
-        DoubleDamage, Flying, Phasing, UpVision
+        DoubleDamage, DoubleMove, Flying, Phasing, Radiant, UpVision
     }
 }

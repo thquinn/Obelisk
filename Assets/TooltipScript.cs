@@ -15,12 +15,16 @@ public class TooltipScript : MonoBehaviour
     };
     static Dictionary<EntityTrait, string> TRAIT_NAMES = new Dictionary<EntityTrait, string> {
         { EntityTrait.DoubleDamage, "Double Damage" },
+        { EntityTrait.DoubleMove, "Double Speed" },
         { EntityTrait.Flying, "Flight" },
+        { EntityTrait.Radiant, "Radiant" },
         { EntityTrait.UpVision, "Third Eye" },
     };
     static Dictionary<EntityTrait, string> TRAIT_TOOLTIPS = new Dictionary<EntityTrait, string> {
         { EntityTrait.DoubleDamage, "This enemy deals 20 damage." },
+        { EntityTrait.DoubleMove, "This enemy moves twice every turn." },
         { EntityTrait.Flying, "This enemy can fly over pitfalls and traps." },
+        { EntityTrait.Radiant, "At the end of this enemy's turn, you take 5 damage if you're next to it." },
         { EntityTrait.UpVision, "This enemy can see you from the floor below." },
     };
     static string USES_TURN = "\n<color=#FF8080>(Uses your turn.)</color>";
