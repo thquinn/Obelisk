@@ -1,5 +1,6 @@
 ﻿using Assets.Model;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -7,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Assets {
-    public class EntityTraits {
+    public class EntityTraits : IEnumerable<EntityTrait> {
         List<ValueTuple<EntityTrait, int>> traits;
 
         public EntityTraits() {
@@ -42,6 +43,16 @@ namespace Assets {
                     traits.RemoveAt(i);
                 }
             }
+        }
+
+        public IEnumerator<EntityTrait> GetEnumerator() {
+            foreach (var kvp in traits) {
+                yield return kvp.Item1;
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() {
+            return GetEnumerator();
         }
     }
 }

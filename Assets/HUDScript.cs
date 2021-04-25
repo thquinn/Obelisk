@@ -50,17 +50,4 @@ public class HUDScript : MonoBehaviour
         hpText.text = string.Format("{0}/{1}", player.hp.Item1, player.hp.Item2);
         mpText.text = string.Format("{0}/{1}", player.mp.Item1, player.mp.Item2);
     }
-
-    public Skill GetClickedSkill() {
-        if (!Input.GetMouseButtonDown(0)) {
-            return null;
-        }
-        Collider2D skillSlotCollider = Util.GetMouseCollider(layerMaskSkillSlot);
-        foreach (SkillSlotScript skillSlotScript in skillSlotScripts) {
-            if (skillSlotCollider == skillSlotScript.collidre) {
-                return skillSlotScript.skill;
-            }
-        }
-        return null;
-    }
 }

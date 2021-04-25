@@ -15,6 +15,9 @@ namespace Assets.Model.Entities {
             hp = new ValueTuple<int, int>(2, 2);
             baseDamage = 10;
             if (UnityEngine.Random.value < .33f) {
+                traits.Add(EntityTrait.DoubleDamage);
+            }
+            if (UnityEngine.Random.value < .33f) {
                 traits.Add(EntityTrait.UpVision);
             }
         }

@@ -49,10 +49,13 @@ namespace Assets {
         }
 
         static Camera mainCamera;
-        public static Collider2D GetMouseCollider(LayerMask layerMask) {
+        public static Collider GetMouseCollider(LayerMask layerMask) {
             if (mainCamera == null) mainCamera = Camera.main;
-            Ray mouseRay = mainCamera.ScreenPointToRay(Input.mousePosition);
-            RaycastHit2D hit = Physics2D.GetRayIntersection(mouseRay, 100, layerMask);
+            Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+            if (!Physics.Raycast(ray, out hit, Mathf.Infinity, layerMask)) {
+                return null;
+            }
             return hit.collider;
         }
 

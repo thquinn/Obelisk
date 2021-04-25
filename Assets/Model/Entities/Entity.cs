@@ -45,7 +45,11 @@ namespace Assets.Model {
         }
 
         public void Attack(Entity entity) {
-            entity.hp.Item1 = Mathf.Max(0, entity.hp.Item1 - baseDamage);
+            int damage = baseDamage;
+            if (traits.Has(EntityTrait.DoubleDamage)) {
+                damage *= 2;
+            }
+            entity.hp.Item1 = Mathf.Max(0, entity.hp.Item1 - damage);
             if (entity.hp.Item1 == 0) {
                 entity.destroyed = true;
             }
@@ -72,6 +76,6 @@ namespace Assets.Model {
     }
 
     public enum EntityTrait {
-        UpVision
+        DoubleDamage, UpVision
     }
 }
