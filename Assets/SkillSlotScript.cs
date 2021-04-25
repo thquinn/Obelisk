@@ -10,10 +10,6 @@ using UnityEngine.UI;
 public class SkillSlotScript : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
 {
     static int SPACING = 80;
-    public static Dictionary<SkillType, string> SKILL_NAMES = new Dictionary<SkillType, string> {
-        { SkillType.Phase, "Phase" },
-        { SkillType.Wait, "Wait" },
-    };
 
     public Sprite spriteSlot, spritePassive, spriteActive;
 
@@ -73,7 +69,7 @@ public class SkillSlotScript : MonoBehaviour, IPointerClickHandler, IPointerEnte
             costText.text = "";
         }
         backImage.type = Image.Type.Sliced;
-        nameText.text = SKILL_NAMES[skill.type];
+        nameText.text = Skill.NAMES[skill.type];
         skipImage.enabled = Skill.USES_TURN.Contains(skill.type);
         nameText.gameObject.transform.localPosition = originalNameOffset + (skipImage.enabled ? new Vector3(40, 0, 0) : Vector3.zero);
     }

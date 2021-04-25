@@ -9,6 +9,14 @@ using Coor = System.Tuple<int, int>;
 
 namespace Assets {
     public static class Util {
+        public static float GetRandomAbsStandardDeviations() {
+            // by yoyoyoyosef
+            float u1 = 1 - UnityEngine.Random.value;
+            float u2 = 1 - UnityEngine.Random.value;
+            float stdDevs = Mathf.Sqrt(-2 * Mathf.Log(u1)) * Mathf.Sin(2 * Mathf.PI * u2);
+            return Math.Abs(stdDevs);
+        }
+
         public static List<Coor> FindPath(Floor floor, Coor start, Coor end, Entity entity) {
             if (start.Equals(end)) {
                 return new List<Coor>{ start };

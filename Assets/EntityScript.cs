@@ -7,7 +7,7 @@ using Coor = System.Tuple<int, int>;
 
 public class EntityScript : MonoBehaviour
 {
-    static float SHADOW_ALPHA = .133f;
+    static float SHADOW_ALPHA = .066f;
     static float LERP_MOVEMENT = .15f;
     static float LERP_SHADOW = .25f;
     static float GRAVITY = .02f;
@@ -116,6 +116,10 @@ public class EntityScript : MonoBehaviour
             }
         }
         transform.localPosition = new Vector3(x, y, z);
+        // Floating.
+        Vector3 spritePivotPosition = spritePivot.transform.localPosition;
+        spritePivotPosition.y = entity.traits.Has(EntityTrait.Flying) ? Mathf.Sin(Time.frameCount * .01f) * .1f : 0;
+        spritePivot.transform.localPosition = spritePivotPosition;
         // Shadows.
         bool showShadow = entity.ShowShadow() && dy == 0;
         float shadowAlpha = Mathf.Lerp(shadowRenderer.color.a, showShadow ? SHADOW_ALPHA : 0, lerpShadow);

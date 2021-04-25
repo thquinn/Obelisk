@@ -61,6 +61,10 @@ namespace Assets.Model {
             }
         }
 
+        public virtual void OnTurnEnd() {
+            traits.Decrement();
+        }
+
         public virtual Coor GetMove() {
             return null;
         }

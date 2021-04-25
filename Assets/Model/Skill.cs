@@ -8,11 +8,18 @@ using UnityEngine;
 
 namespace Assets.Model {
     public class Skill {
+        public static Dictionary<SkillType, string> NAMES = new Dictionary<SkillType, string> {
+        { SkillType.Empower, "Empower" },
+        { SkillType.Phase, "Phase" },
+        { SkillType.Wait, "Wait" },
+    };
         public static Dictionary<SkillType, int> COOLDOWNS = new Dictionary<SkillType, int> {
+            { SkillType.Empower, 2 },
             { SkillType.Phase, 20 },
             { SkillType.Wait, 0 },
         };
         public static Dictionary<SkillType, int> COSTS = new Dictionary<SkillType, int> {
+            { SkillType.Empower, 2 },
             { SkillType.Phase, 5 },
             { SkillType.Wait, 1 },
         };
@@ -42,7 +49,9 @@ namespace Assets.Model {
             }
             cooldown = COOLDOWNS[type];
             player.mp.Item1 -= cost;
-            if (type == SkillType.Phase) {
+            if (type == SkillType.Empower) {
+                player.traits.Add(EntityTrait.DoubleDamage, 1);
+            } else if (type == SkillType.Phase) {
                 player.traits.Add(EntityTrait.Phasing, 1);
             }
             return USES_TURN.Contains(type);
@@ -53,6 +62,6 @@ namespace Assets.Model {
     }
 
     public enum SkillType {
-        None, Phase, Wait
+        None, Empower, Phase, Wait
     }
 }

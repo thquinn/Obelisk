@@ -4,12 +4,14 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Assets.Model.Entities {
     public class Player : Entity {
         Tuple<SkillType, float>[] SKILL_LEVEL_WEIGHTS = new Tuple<SkillType, float>[] {
             new Tuple<SkillType, float>(SkillType.Wait, 100),
-            new Tuple<SkillType, float>(SkillType.Phase, 10),
+            new Tuple<SkillType, float>(SkillType.Empower, 100),
+            new Tuple<SkillType, float>(SkillType.Phase, 100),
         };
 
         public Skill[] skills;
@@ -33,12 +35,14 @@ namespace Assets.Model.Entities {
             skillsToLearn = new HashSet<SkillType>(SKILL_LEVEL_WEIGHTS.Select(t => t.Item1));
         }
 
-        public void DecrementCooldowns() {
+        public override void OnTurnEnd() {
+            base.OnTurnEnd();
             foreach (Skill skill in skills) {
                 if (skill != null) {
                     skill.DecrementCooldown();
                 }
             }
+            xp.Item1 = Mathf.Max(0, xp.Item1 - .01f);
         }
 
         public void GainXP(float gain) {
@@ -51,7 +55,7 @@ namespace Assets.Model.Entities {
             }
         }
         void LearnSkill() {
-            float selector = 101;
+            float selector = Util.GetRandomAbsStandardDeviations() * level * 100;
             SkillType toLearn = SkillType.None;
             foreach (var t in SKILL_LEVEL_WEIGHTS) {
                 SkillType type = t.Item1;
@@ -73,7 +77,7 @@ namespace Assets.Model.Entities {
                     }
                 }
             }
-            Debug.Assert(toLearn != SkillType.None);
+            System.Diagnostics.Debug.Assert(toLearn != SkillType.None);
             skillsToLearn.Remove(toLearn);
             if (skillsToLearn.Count == 0) {
                 SetSkillsToLearn();

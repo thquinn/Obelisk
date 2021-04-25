@@ -34,6 +34,14 @@ public class GameManagerScript : MonoBehaviour
 
     void Start()
     {
+        // TEST
+        for (int i = 0; i < 1000; i++) {
+            Player p = new Player(null);
+            p.GainXP(10);
+            Debug.Log(p.skills[0].type.ToString());
+        }
+        // END TEST
+
         Application.targetFrameRate = 60;
         cam = Camera.main;
         cameraInitialPosition = cam.transform.localPosition;
@@ -68,10 +76,9 @@ public class GameManagerScript : MonoBehaviour
 
     void Update() {
         UpdateCameraAndFloors();
-        if (waitFrames <= 0 && !playerScript.fallMode) {
+        if (ReadyForMove()) {
             if (PlayerMovement() || PlayerSkills()) {
-                player.traits.Decrement();
-                player.DecrementCooldowns();
+                player.OnTurnEnd();
                 CleanupDestroyed();
                 waitFrames = WAIT_FRAMES;
             }
@@ -79,6 +86,9 @@ public class GameManagerScript : MonoBehaviour
             FallAndEnemyMoves();
             CleanupDestroyed();
         }
+    }
+    bool ReadyForMove() {
+        return waitFrames <= 0 && !playerScript.fallMode && player.replacementSkill == SkillType.None;
     }
 
     void UpdateCameraAndFloors() {
@@ -190,7 +200,7 @@ public class GameManagerScript : MonoBehaviour
                 Entity blockingEntity = targetTile.GetBlockingEntity();
                 kvp.Key.Attack(blockingEntity);
             }
-            kvp.Key.traits.Decrement();
+            kvp.Key.OnTurnEnd();
         }
     }
 

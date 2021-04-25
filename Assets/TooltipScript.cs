@@ -9,6 +9,7 @@ using UnityEngine.UI;
 public class TooltipScript : MonoBehaviour
 {
     static Dictionary<SkillType, string> SKILL_TOOLTIPS = new Dictionary<SkillType, string> {
+        { SkillType.Empower, "Your next attack deals double damage." },
         { SkillType.Phase, "You pass through walls during your next move." },
         { SkillType.Wait, "Do nothing." },
     };
@@ -22,7 +23,7 @@ public class TooltipScript : MonoBehaviour
         { EntityTrait.Flying, "This enemy can fly over pitfalls and traps." },
         { EntityTrait.UpVision, "This enemy can see you from the floor below." },
     };
-    static string USES_TURN = "\n<color=#FF4040>(Uses your turn.)</color>";
+    static string USES_TURN = "\n<color=#FF8080>(Uses your turn.)</color>";
     static float POST_TITLE_OFFSET = -10;
     static float POST_BODY_OFFSET = 10;
 
@@ -84,7 +85,7 @@ public class TooltipScript : MonoBehaviour
         Clear();
         lastSkill = skill;
         TextMeshProUGUI tmp = MakeText();
-        tmp.text = SkillSlotScript.SKILL_NAMES[skill.type];
+        tmp.text = Skill.NAMES[skill.type];
         float height = tmp.preferredHeight;
         tmp = MakeText();
         string text = SKILL_TOOLTIPS[skill.type];
