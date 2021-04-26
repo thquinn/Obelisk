@@ -8,6 +8,8 @@ using Coor = System.Tuple<int, int>;
 namespace Assets.Model {
     public class Floor {
         static int FLOORGEN_IDEAL_ENTRANCE_TO_EXIT_DISTANCE = 12;
+        static float FLOORGEN_ENEMY_PROGRESSION_RATE = .66f;
+        static float FLOORGEN_ENEMY_PROGRESSION_OFFSET = 1;
 
         public int number;
         public Tile[,] tiles;
@@ -15,6 +17,7 @@ namespace Assets.Model {
         public Floor previous;
         public Coor entrance;
         public bool playerOnFloor;
+        float xpMargin;
 
         public Floor(int n, Floor previous) {
             this.number = n;
@@ -22,34 +25,55 @@ namespace Assets.Model {
             if (previous != null) {
                 entrance = previous.FindExit();
             }
-            playerOnFloor = n == 0;
             tiles = new Tile[7, 7];
-            int[] shuffled = Enumerable.Range(0, tiles.Length).ToArray().Shuffle();
-            int exitPosition = shuffled[0];
-            int playerPosition = n == 0 ? shuffled[1] : -1;
-            int enemyPosition = shuffled[2];
-            int enemyPosition2 = shuffled[3];
-            int trapPosition = shuffled[4];
-            // Place tiles, exit, and player.
-            for (int x = 0; x < Width(); x++) {
-                for (int y = 0; y < Height(); y++) {
-                    int position = y * tiles.GetLength(0) + x;
-                    Tile tile = new Tile(this, x, y, position == exitPosition ? TileType.Exit : TileType.Floor);
-                    tiles[x, y] = tile;
-                    if (position == playerPosition) {
-                        tile.entities.Add(new Player(tile));
-                    }
-                    if (position == enemyPosition || position == enemyPosition2) {
-                        tile.entities.Add(new Enemy(tile));
-                    }
-                    if (position == trapPosition) {
-                        tile.entities.Add(new Trap(tile));
-                    }
-                }
-            }
-            // Place walls.
             wallsRight = new HashSet<Coor>();
             wallsBelow = new HashSet<Coor>();
+            if (n == 0) {
+                playerOnFloor = true;
+                GenFirstLevel();
+                return;
+            }
+            List<int> shuffled = Enumerable.Range(0, tiles.Length).ToList();
+            shuffled.RemoveAt(entrance.Item2 * Width() + entrance.Item1);
+            shuffled.Shuffle();
+            int exitPosition = shuffled[0];
+            // Place tiles and exit.
+            for (int x = 0; x < Width(); x++) {
+                for (int y = 0; y < Height(); y++) {
+                    int position = y * Width() + x;
+                    tiles[x, y] = new Tile(this, x, y, position == exitPosition ? TileType.Exit : TileType.Floor);
+                }
+            }
+            int tileIndex = 1;
+            // Place enemies.
+            float modifiedFloor = n * FLOORGEN_ENEMY_PROGRESSION_RATE + FLOORGEN_ENEMY_PROGRESSION_OFFSET;
+            float xpBudget = (modifiedFloor - 1) * (modifiedFloor + 6) / 4; // {0, 2, 4.5, 7.5, 11, 15...}
+            UnityEngine.Debug.Log("XP Budget for floor " + n + " is " + xpBudget);
+            float initialXPBudget = xpBudget;
+            float expectedEnemyCount = n == 2 ? 1 : Mathf.Pow(xpBudget, .33f) * 1.2f;
+            int attempts = 0;
+            Enemy lastEnemy = null;
+            while (xpBudget > initialXPBudget * .1f && xpBudget >= 2 && attempts++ < 100) {
+                int position = shuffled[tileIndex];
+                Tile tile = tiles[position % Width(), position / Width()];
+                Enemy enemy;
+                float desiredXPValue = initialXPBudget / expectedEnemyCount * UnityEngine.Random.Range(.8f, 1.25f);
+                if (lastEnemy != null && Random.value > .5f) {
+                    enemy = new Enemy(tile, lastEnemy);
+                } else {
+                    enemy = new Enemy(tile, desiredXPValue);
+                }
+                System.Diagnostics.Debug.Assert(enemy.xpValue > 0, "Uncalculated enemy XP value.");
+                float xpRatio = enemy.xpValue / desiredXPValue;
+                if (xpRatio > 1.2f) {
+                    continue;
+                }
+                tile.entities.Add(enemy);
+                xpBudget -= enemy.xpValue;
+                tileIndex++;
+            }
+            xpMargin = initialXPBudget == 0 ? 0 : Mathf.Abs(xpBudget / initialXPBudget);
+            // Place walls.
             if (n > 0) {
                 for (int i = 0; i < 20; i++) {
                     bool horizontal = Random.value < .5f;
@@ -57,6 +81,7 @@ namespace Assets.Model {
                     (horizontal ? wallsBelow : wallsRight).Add(wallCoor);
                 }
             }
+            // TODO: Place traps.
         }
         public static Floor Generate(int number, Floor previous, int attempts) {
             Floor bestFloor = null;
@@ -70,6 +95,18 @@ namespace Assets.Model {
                 }
             }
             return bestFloor;
+        }
+        void GenFirstLevel() {
+            for (int x = 0; x < Width(); x++) {
+                for (int y = 0; y < Height(); y++) {
+                    TileType type;
+                    if (x == 3) type = y == 1 ? TileType.Exit : TileType.Floor;
+                    else if (x == 2 || x == 4) type = (y <= 2 || y == 5) ? TileType.Floor : TileType.InvisibleWall;
+                    else type = TileType.InvisibleWall;
+                    tiles[x, y] = new Tile(this, x, y, type);
+                    if (x == 3 && y == 5) tiles[x, y].entities.Add(new Player(tiles[x, y]));
+                }
+            }
         }
 
         public int Width() {
@@ -142,6 +179,7 @@ namespace Assets.Model {
             if (IsExitInCorner()) {
                 score -= 4;
             }
+            score -= xpMargin * 4;
             return score;
         }
         private bool IsExitInCorner() {

@@ -56,5 +56,9 @@ namespace Assets {
         IEnumerator IEnumerable.GetEnumerator() {
             return GetEnumerator();
         }
+
+        public int Count() {
+            return traits.Count;
+        }
     }
 }

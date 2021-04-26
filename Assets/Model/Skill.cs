@@ -9,27 +9,38 @@ using UnityEngine;
 namespace Assets.Model {
     public class Skill {
         public static Dictionary<SkillType, string> NAMES = new Dictionary<SkillType, string> {
+        { SkillType.Autophage, "Autophage" },
         { SkillType.Empower, "Empower" },
+        { SkillType.FastForward, "Fast Forward" },
+        { SkillType.Leech, "Leech" },
+        { SkillType.MaxHP20, "Vim" },
+        { SkillType.MaxHP40, "Vigor" },
         { SkillType.Phase, "Phase" },
         { SkillType.Quicken, "Quicken" },
+        { SkillType.Regeneration, "Regeneration" },
         { SkillType.Shield, "Shield" },
         { SkillType.Wait, "Wait" },
     };
         public static Dictionary<SkillType, int> COOLDOWNS = new Dictionary<SkillType, int> {
+            { SkillType.Autophage, 40 },
             { SkillType.Empower, 2 },
+            { SkillType.FastForward, 3 },
             { SkillType.Phase, 20 },
             { SkillType.Quicken, 10 },
             { SkillType.Shield, 8 },
             { SkillType.Wait, 0 },
         };
         public static Dictionary<SkillType, int> COSTS = new Dictionary<SkillType, int> {
+            { SkillType.Autophage, 0 },
             { SkillType.Empower, 2 },
+            { SkillType.FastForward, 1 },
             { SkillType.Phase, 5 },
             { SkillType.Quicken, 7 },
             { SkillType.Shield, 4 },
             { SkillType.Wait, 1 },
         };
         public static HashSet<SkillType> USES_TURN = new HashSet<SkillType>() {
+            SkillType.Autophage,
             SkillType.Wait,
         };
 
@@ -55,8 +66,16 @@ namespace Assets.Model {
             }
             cooldown = COOLDOWNS[type];
             player.mp.Item1 -= cost;
-            if (type == SkillType.Empower) {
+            if (type == SkillType.Autophage) {
+
+            } else if (type == SkillType.Empower) {
                 player.traits.Add(EntityTrait.DoubleDamage, 1);
+            } else if (type == SkillType.FastForward) {
+                foreach (Skill skill in player.skills) {
+                    if (skill != null && skill != this && skill.cooldown > 0) {
+                        skill.DecrementCooldown();
+                    }
+                }
             } else if (type == SkillType.Phase) {
                 player.traits.Add(EntityTrait.Phasing, 1);
             } else if (type == SkillType.Quicken) {
@@ -72,6 +91,6 @@ namespace Assets.Model {
     }
 
     public enum SkillType {
-        None, Empower, Phase, Quicken, Shield, Wait
+        None, Autophage, Empower, FastForward, Leech, MaxHP20, MaxHP40, Phase, Quicken, Regeneration, Shield, Wait
     }
 }

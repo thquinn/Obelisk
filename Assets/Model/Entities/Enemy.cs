@@ -6,32 +6,79 @@ using System.Threading.Tasks;
 using Coor = System.Tuple<int, int>;
 
 namespace Assets.Model.Entities {
-    class Enemy : Entity {
+    public class Enemy : Entity {
+        static Dictionary<EntityTrait, float> ENEMY_TRAIT_MULTIPLIERS = new Dictionary<EntityTrait, float> {
+            { EntityTrait.DoubleDamage, 2f },
+            { EntityTrait.DoubleMove, 2.2f },
+            { EntityTrait.Flying, 1.1f },
+            { EntityTrait.ManaBurn, 1.3f },
+            { EntityTrait.Radiant, 1.6f },
+            { EntityTrait.TripleDamage, 3f },
+            { EntityTrait.UpVision, 1.2f },
+        };
+        static EntityTrait[] ENEMY_TRAITS = ENEMY_TRAIT_MULTIPLIERS.Keys.ToArray();
+
         Coor wanderCoor;
         int wanderTurns;
+        public float xpValue;
 
-        public Enemy(Tile tile) : base(tile) {
+        public Enemy(Tile tile, float desiredXPValue) : base(tile) {
             type = EntityType.Enemy;
-            int numHP = UnityEngine.Random.Range(1, 4);
+            int numHP = -1;
+            int maxTraits = -1;
+            HashSet<EntityTrait> validTraits = new HashSet<EntityTrait>(ENEMY_TRAIT_MULTIPLIERS.Keys);
+            if (desiredXPValue <= 5) {
+                numHP = UnityEngine.Random.Range(1, 3);
+                maxTraits = 2;
+                validTraits.Remove(EntityTrait.DoubleDamage);
+                validTraits.Remove(EntityTrait.DoubleMove);
+                validTraits.Remove(EntityTrait.Radiant);
+                validTraits.Remove(EntityTrait.TripleDamage);
+            } else if (desiredXPValue <= 15) {
+                maxTraits = 3;
+                numHP = UnityEngine.Random.Range(1, 4);
+                validTraits.Remove(EntityTrait.DoubleMove);
+                validTraits.Remove(EntityTrait.TripleDamage);
+            } else if (desiredXPValue <= 100) {
+                maxTraits = 4;
+                numHP = UnityEngine.Random.Range(2, 5);
+            } else {
+                maxTraits = 6;
+                numHP = UnityEngine.Random.Range(1, 10);
+            }
             hp = new ValueTuple<int, int>(numHP, numHP);
             baseDamage = 10;
-            if (UnityEngine.Random.value < .33f) {
-                traits.Add(EntityTrait.DoubleDamage);
+            CalculateXPValue();
+            while (xpValue < desiredXPValue && validTraits.Count > 0 && traits.Count() < maxTraits) {
+                EntityTrait trait = ENEMY_TRAITS[UnityEngine.Random.Range(0, ENEMY_TRAITS.Length)];
+                if (!validTraits.Contains(trait)) {
+                    continue;
+                }
+                traits.Add(trait);
+                validTraits.Remove(trait);
+                if (trait == EntityTrait.DoubleDamage) {
+                    validTraits.Remove(EntityTrait.TripleDamage);
+                } else if (trait == EntityTrait.TripleDamage) {
+                    validTraits.Remove(EntityTrait.DoubleDamage);
+                }
+                CalculateXPValue();
             }
-            if (UnityEngine.Random.value < .33f) {
-                traits.Add(EntityTrait.DoubleMove);
+        }
+        public Enemy(Tile tile, Enemy other) : base(tile) {
+            type = EntityType.Enemy;
+            hp = new ValueTuple<int, int>(other.hp.Item1, other.hp.Item2);
+            baseDamage = 10;
+            foreach (EntityTrait trait in other.traits) {
+                traits.Add(trait);
             }
-            if (UnityEngine.Random.value < .33f) {
-                traits.Add(EntityTrait.Flying);
-            }
-            if (UnityEngine.Random.value < .33f) {
-                traits.Add(EntityTrait.ManaBurn);
-            }
-            if (UnityEngine.Random.value < .33f) {
-                traits.Add(EntityTrait.Radiant);
-            }
-            if (UnityEngine.Random.value < .33f) {
-                traits.Add(EntityTrait.UpVision);
+            CalculateXPValue();
+        }
+        void CalculateXPValue() {
+            xpValue = hp.Item2 * 3 - 1;
+            foreach (EntityTrait trait in traits) {
+                if (ENEMY_TRAIT_MULTIPLIERS.ContainsKey(trait)) {
+                    xpValue *= ENEMY_TRAIT_MULTIPLIERS[trait];
+                }
             }
         }
 

@@ -55,7 +55,9 @@ namespace Assets.Model {
             Attack(entity, CalculateDamage(entity));
         }
         public void Attack(Entity entity, int damage) {
-            if (traits.Has(EntityTrait.DoubleDamage)) {
+            if (traits.Has(EntityTrait.TripleDamage)) {
+                damage *= 3;
+            } else if (traits.Has(EntityTrait.DoubleDamage)) {
                 damage *= 2;
             }
             if (entity.traits.Has(EntityTrait.Invulnerable)) {
@@ -76,7 +78,7 @@ namespace Assets.Model {
                 if (type == EntityType.Player && entity.type == EntityType.Enemy) {
                     Player player = (Player)this;
                     Enemy enemy = (Enemy)entity;
-                    player.GainXP(5);
+                    player.OnKill(enemy);
                 }
             }
             // Animation.
@@ -84,9 +86,25 @@ namespace Assets.Model {
                 (type == EntityType.Enemy || entity.type == EntityType.Enemy)) {
                 animationTarget = entity;
             }
+            // Sound.
+            if (damage > 0) {
+                SFXScript.SFXHit();
+            }
         }
         public virtual int CalculateDamage(Entity target) {
             return baseDamage;
+        }
+
+        public void Heal(int amount) {
+            hp.Item1 = Mathf.Min(hp.Item1 + amount, hp.Item2);
+        }
+        public void GainMP(int amount) {
+            mp.Item1 = Mathf.Min(mp.Item1 + amount, mp.Item2);
+        }
+        public void ChangeMaxHP(int amount) {
+            float percentage = hp.Item1 / (float)hp.Item2;
+            int newMax = Mathf.Max(1, hp.Item2 + amount);
+            hp = new ValueTuple<int, int>(Mathf.RoundToInt(percentage * newMax), newMax);
         }
 
         public virtual void OnTurnEnd() {
@@ -114,6 +132,6 @@ namespace Assets.Model {
     }
 
     public enum EntityTrait {
-        DoubleDamage, DoubleMove, ExtraPlayerMove, Flying, Invulnerable, ManaBurn, Phasing, Radiant, UpVision
+        DoubleDamage, DoubleMove, ExtraPlayerMove, Flying, Invulnerable, ManaBurn, Phasing, Radiant, TripleDamage, UpVision
     }
 }

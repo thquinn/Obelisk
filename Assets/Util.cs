@@ -17,6 +17,11 @@ namespace Assets {
             return Math.Abs(stdDevs);
         }
 
+        public static int RandRound(float f) {
+            float fract = f % 1f;
+            return UnityEngine.Random.value > fract ? Mathf.FloorToInt(f) : Mathf.CeilToInt(f);
+        }
+
         public static List<Coor> FindPath(Floor floor, Coor start, Coor end, Entity entity) {
             if (start.Equals(end)) {
                 return new List<Coor>{ start };

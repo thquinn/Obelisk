@@ -31,6 +31,8 @@ namespace Assets.Model {
                     return entity.type == EntityType.Player || !coor.Equals(floor.entrance);
                 case TileType.Exit:
                     return entity.type == EntityType.Player || entity.traits.Has(EntityTrait.Flying);
+                case TileType.InvisibleWall:
+                    return false;
             }
             throw new Exception("Unhandled passability case.");
         }
@@ -88,6 +90,6 @@ namespace Assets.Model {
     }
 
     public enum TileType {
-        Floor, Exit
+        Floor, Exit, InvisibleWall
     }
 }

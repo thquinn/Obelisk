@@ -20,7 +20,7 @@ public class FloorScript : MonoBehaviour
         // Create tiles.
         for (int x = 0; x < floor.Width(); x++) {
             for (int y = 0; y < floor.Height(); y++) {
-                if (floor.tiles[x, y].type == TileType.Exit) {
+                if (floor.tiles[x, y].type != TileType.Floor) {
                     continue;
                 }
                 GameObject tile = Instantiate(prefabTile, transform);

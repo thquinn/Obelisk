@@ -9,18 +9,25 @@ using UnityEngine.UI;
 public class TooltipScript : MonoBehaviour
 {
     static Dictionary<SkillType, string> SKILL_TOOLTIPS = new Dictionary<SkillType, string> {
-        { SkillType.Empower, "Your next attack deals double damage." },
+        { SkillType.Autophage, "Lose 20 HP and gain 10 MP." },
+        { SkillType.Empower, "Your attacks deal double damage this turn." },
+        { SkillType.FastForward, "Advances other skills on cooldown by 1 turn." },
+        { SkillType.Leech, "You gain 2 MP whenever you kill an enemy." },
+        { SkillType.MaxHP20, "You have 20 additional HP." },
+        { SkillType.MaxHP40, "You have 40 additional HP." },
         { SkillType.Phase, "You pass through walls during your next move." },
-        { SkillType.Quicken, "Make two moves in a row." },
+        { SkillType.Quicken, "Take two turns in a row." },
+        { SkillType.Regeneration, "You gain 5 HP upon dropping to a new floor." },
         { SkillType.Shield, "You take no damage until your next turn." },
         { SkillType.Wait, "Do nothing." },
     };
     static Dictionary<EntityTrait, string> TRAIT_NAMES = new Dictionary<EntityTrait, string> {
         { EntityTrait.DoubleDamage, "Double Damage" },
-        { EntityTrait.DoubleMove, "Double Speed" },
+        { EntityTrait.DoubleMove, "Double Time" },
         { EntityTrait.Flying, "Flight" },
         { EntityTrait.ManaBurn, "Mana Burn" },
         { EntityTrait.Radiant, "Radiant" },
+        { EntityTrait.TripleDamage, "Triple Damage" },
         { EntityTrait.UpVision, "Third Eye" },
     };
     static Dictionary<EntityTrait, string> TRAIT_TOOLTIPS = new Dictionary<EntityTrait, string> {
@@ -28,7 +35,8 @@ public class TooltipScript : MonoBehaviour
         { EntityTrait.DoubleMove, "This enemy moves twice every turn." },
         { EntityTrait.Flying, "This enemy can fly over pitfalls and traps." },
         { EntityTrait.ManaBurn, "You lose 3 MP whenever this enemy attacks you." },
-        { EntityTrait.Radiant, "At the end of this enemy's turn, you take 5 damage if you're next to it." },
+        { EntityTrait.Radiant, "Deals 5 damage when it ends its turn next to you." },
+        { EntityTrait.TripleDamage, "This enemy deals triple damage." },
         { EntityTrait.UpVision, "This enemy can see you from the floor below." },
     };
     static string USES_TURN = "\n<color=#FF8080>(Uses your turn.)</color>";

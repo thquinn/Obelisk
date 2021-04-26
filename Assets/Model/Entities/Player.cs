@@ -11,7 +11,15 @@ namespace Assets.Model.Entities {
         Tuple<SkillType, float>[] SKILL_LEVEL_WEIGHTS = new Tuple<SkillType, float>[] {
             new Tuple<SkillType, float>(SkillType.Wait, 100),
             new Tuple<SkillType, float>(SkillType.Empower, 100),
+            new Tuple<SkillType, float>(SkillType.MaxHP20, 100),
+            new Tuple<SkillType, float>(SkillType.Shield, 100),
+            new Tuple<SkillType, float>(SkillType.Regeneration, 100),
+            new Tuple<SkillType, float>(SkillType.Leech, 100),
+            new Tuple<SkillType, float>(SkillType.MaxHP40, 100),
+            new Tuple<SkillType, float>(SkillType.FastForward, 100),
+            new Tuple<SkillType, float>(SkillType.Autophage, 100),
             new Tuple<SkillType, float>(SkillType.Phase, 100),
+            new Tuple<SkillType, float>(SkillType.Quicken, 100),
         };
 
         public Skill[] skills;
@@ -31,10 +39,19 @@ namespace Assets.Model.Entities {
             xp = new ValueTuple<float, float>(0, 10);
             replacementSkill = SkillType.None;
             SetSkillsToLearn();
-            skills[0] = new Skill(this, SkillType.Shield);
+            skills[0] = new Skill(this, SkillType.Regeneration);
         }
         void SetSkillsToLearn() {
             skillsToLearn = new HashSet<SkillType>(SKILL_LEVEL_WEIGHTS.Select(t => t.Item1));
+        }
+
+        bool HasSkill(SkillType type) {
+            foreach (Skill skill in skills) {
+                if (skill != null && skill.type == type) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         public override void OnTurnEnd() {
@@ -49,8 +66,29 @@ namespace Assets.Model.Entities {
                 xp.Item1 -= xp.Item2 * .001f;
             }
         }
+        public void OnKill(Enemy enemy) {
+            GainXP(enemy.xpValue);
+            if (HasSkill(SkillType.Leech)) {
+                GainMP(2);
+            }
+        }
         public void OnNewFloor() {
             turnsOnFloor = 0;
+            Heal(Util.RandRound(hp.Item2 / 20f));
+            GainMP(Util.RandRound(mp.Item2 / 20f));
+            if (HasSkill(SkillType.Regeneration)) {
+                Heal(5);
+            }
+        }
+        public void OnLearnSkill(Skill skill) {
+            if (skill.type == SkillType.MaxHP20) {
+                ChangeMaxHP(20);
+            }
+        }
+        public void OnLoseSkill(Skill skill) {
+            if (skill.type == SkillType.MaxHP20) {
+                ChangeMaxHP(-20);
+            }
         }
 
         public void GainXP(float gain) {
@@ -93,6 +131,7 @@ namespace Assets.Model.Entities {
             for (int i = 0; i < skills.Length; i++) {
                 if (skills[i] == null) {
                     skills[i] = new Skill(this, toLearn);
+                    OnLearnSkill(skills[i]);
                     return;
                 }
             }
