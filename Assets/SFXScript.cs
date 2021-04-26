@@ -12,6 +12,7 @@ public class SFXScript : MonoBehaviour
     }
 
     public static void SFXHit() {
-        hitStatic.Play();
+        hitStatic.pitch = Random.Range(.5f, 2f);
+        hitStatic.PlayOneShot(hitStatic.clip);
     }
 }

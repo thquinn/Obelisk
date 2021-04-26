@@ -50,7 +50,7 @@ namespace Assets.Model {
             float xpBudget = (modifiedFloor - 1) * (modifiedFloor + 6) / 4; // {0, 2, 4.5, 7.5, 11, 15...}
             UnityEngine.Debug.Log("XP Budget for floor " + n + " is " + xpBudget);
             float initialXPBudget = xpBudget;
-            float expectedEnemyCount = n == 2 ? 1 : Mathf.Pow(xpBudget, .33f) * 1.2f;
+            float expectedEnemyCount = n < 4 ? 1 : Mathf.Pow(xpBudget, .25f) * 1.2f;
             int attempts = 0;
             Enemy lastEnemy = null;
             while (xpBudget > initialXPBudget * .1f && xpBudget >= 2 && attempts++ < 100) {

@@ -4,6 +4,7 @@ using Assets.Model.Entities;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Coor = System.Tuple<int, int>;
 
 public class GameManagerScript : MonoBehaviour
@@ -75,11 +76,13 @@ public class GameManagerScript : MonoBehaviour
     }
 
     void Update() {
-        // DEBUG
-        if (Input.GetKeyDown(KeyCode.Z)) {
-            player.GainXP(player.xp.Item2);
+        if (Input.GetKeyDown(KeyCode.Escape)) {
+            clickedSkill = null;
+            Application.Quit();
         }
-        // END DEBUG
+        if (Input.GetKeyDown(KeyCode.R)) {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        }
         UpdateCameraAndFloors();
         // Skill replacement.
         if (player.replacementSkill != SkillType.None && clickedSkill != null) {

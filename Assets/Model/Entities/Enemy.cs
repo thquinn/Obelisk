@@ -29,13 +29,13 @@ namespace Assets.Model.Entities {
             HashSet<EntityTrait> validTraits = new HashSet<EntityTrait>(ENEMY_TRAIT_MULTIPLIERS.Keys);
             if (desiredXPValue <= 5) {
                 numHP = UnityEngine.Random.Range(1, 3);
-                maxTraits = 2;
+                maxTraits = 1;
                 validTraits.Remove(EntityTrait.DoubleDamage);
                 validTraits.Remove(EntityTrait.DoubleMove);
                 validTraits.Remove(EntityTrait.Radiant);
                 validTraits.Remove(EntityTrait.TripleDamage);
             } else if (desiredXPValue <= 15) {
-                maxTraits = 3;
+                maxTraits = 2;
                 numHP = UnityEngine.Random.Range(1, 4);
                 validTraits.Remove(EntityTrait.DoubleMove);
                 validTraits.Remove(EntityTrait.TripleDamage);
@@ -43,7 +43,7 @@ namespace Assets.Model.Entities {
                 maxTraits = 4;
                 numHP = UnityEngine.Random.Range(2, 5);
             } else {
-                maxTraits = 6;
+                maxTraits = 5;
                 numHP = UnityEngine.Random.Range(1, 10);
             }
             hp = new ValueTuple<int, int>(numHP, numHP);
