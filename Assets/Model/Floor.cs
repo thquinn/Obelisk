@@ -8,8 +8,9 @@ using Coor = System.Tuple<int, int>;
 namespace Assets.Model {
     public class Floor {
         static int FLOORGEN_IDEAL_ENTRANCE_TO_EXIT_DISTANCE = 12;
-        static float FLOORGEN_ENEMY_PROGRESSION_RATE = .66f;
+        static float FLOORGEN_ENEMY_PROGRESSION_RATE = .6f;
         static float FLOORGEN_ENEMY_PROGRESSION_OFFSET = 1;
+        static int FIRST_TRAP_FLOOR = 5;
 
         public int number;
         public Tile[,] tiles;
@@ -19,7 +20,7 @@ namespace Assets.Model {
         public bool playerOnFloor;
         float xpMargin;
 
-        public Floor(int n, Floor previous) {
+        public Floor(int n, Floor previous, Player player) {
             this.number = n;
             this.previous = previous;
             if (previous != null) {
@@ -61,7 +62,7 @@ namespace Assets.Model {
                 if (lastEnemy != null && Random.value > .5f) {
                     enemy = new Enemy(tile, lastEnemy);
                 } else {
-                    enemy = new Enemy(tile, desiredXPValue);
+                    enemy = new Enemy(tile, desiredXPValue, player, n < 4);
                 }
                 System.Diagnostics.Debug.Assert(enemy.xpValue > 0, "Uncalculated enemy XP value.");
                 float xpRatio = enemy.xpValue / desiredXPValue;
@@ -81,13 +82,21 @@ namespace Assets.Model {
                     (horizontal ? wallsBelow : wallsRight).Add(wallCoor);
                 }
             }
-            // TODO: Place traps.
+            // Place traps.
+            if (n >= FIRST_TRAP_FLOOR) {
+                int numSpikes = n == FIRST_TRAP_FLOOR ? 1 : UnityEngine.Random.Range(1, 4);
+                for (int i = 0; i < numSpikes; i++) {
+                    int position = shuffled[tileIndex++];
+                    Tile tile = tiles[position % Width(), position / Width()];
+                    tile.entities.Add(new Trap(tile));
+                }
+            }
         }
-        public static Floor Generate(int number, Floor previous, int attempts) {
+        public static Floor Generate(int number, Floor previous, int attempts, Player player) {
             Floor bestFloor = null;
             float bestScore = float.MinValue;
             for (int i = 0; i < 100; i++) {
-                Floor floor = new Floor(number, previous);
+                Floor floor = new Floor(number, previous, player);
                 float score = floor.ScoreSuitability();
                 if (score >= bestScore) {
                     bestFloor = floor;

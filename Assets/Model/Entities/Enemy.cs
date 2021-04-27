@@ -21,8 +21,9 @@ namespace Assets.Model.Entities {
         Coor wanderCoor;
         int wanderTurns;
         public float xpValue;
+        public bool radiantHit;
 
-        public Enemy(Tile tile, float desiredXPValue) : base(tile) {
+        public Enemy(Tile tile, float desiredXPValue, Player player, bool forceVanilla) : base(tile) {
             type = EntityType.Enemy;
             int numHP = -1;
             int maxTraits = -1;
@@ -46,9 +47,15 @@ namespace Assets.Model.Entities {
                 maxTraits = 5;
                 numHP = UnityEngine.Random.Range(1, 10);
             }
+            if (!player.HasMPSkills()) {
+                validTraits.Remove(EntityTrait.ManaBurn);
+            }
             hp = new ValueTuple<int, int>(numHP, numHP);
             baseDamage = 10;
             CalculateXPValue();
+            if (forceVanilla) {
+                return;
+            }
             while (xpValue < desiredXPValue && validTraits.Count > 0 && traits.Count() < maxTraits) {
                 EntityTrait trait = ENEMY_TRAITS[UnityEngine.Random.Range(0, ENEMY_TRAITS.Length)];
                 if (!validTraits.Contains(trait)) {
@@ -115,7 +122,8 @@ namespace Assets.Model.Entities {
                 foreach (Tile neighbor in tile.GetNeighbors()) {
                     Entity e = neighbor.GetBlockingEntity();
                     if (e != null && e.type == EntityType.Player) {
-                        Attack(e, 5);
+                        Attack(e, 5, false);
+                        radiantHit = true;
                     }
                 }
             }

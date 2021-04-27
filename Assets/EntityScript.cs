@@ -1,5 +1,6 @@
 ﻿using Assets;
 using Assets.Model;
+using Assets.Model.Entities;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -159,6 +160,11 @@ public class EntityScript : MonoBehaviour
         // Radiant.
         if (radiantRenderer != null) {
             radiantRenderer.transform.Rotate(Vector3.forward, .5f);
+            radiantRenderer.color = Color.Lerp(radiantRenderer.color, Color.white, .1f);
+            if ((entity as Enemy).radiantHit) {
+                radiantRenderer.color = Color.red;
+                (entity as Enemy).radiantHit = false;
+            }
         }
         // Floating.
         Vector3 spritePivotPosition = spritePivot.transform.localPosition;

@@ -21,18 +21,19 @@ namespace Assets.Model.Entities {
             new Tuple<SkillType, float>(SkillType.Phase, 100),
             new Tuple<SkillType, float>(SkillType.Quicken, 100),
         };
+        public static int LINGER_TURNS = 35;
 
         public Skill[] skills;
         int level;
         public ValueTuple<float, float> xp;
         HashSet<SkillType> skillsToLearn;
         public SkillType replacementSkill;
-        int turnsOnFloor;
+        public int turnsOnFloor;
 
         public Player(Tile tile) : base(tile) {
             type = EntityType.Player;
             hp = new ValueTuple<int, int>(100, 100);
-            mp = new ValueTuple<int, int>(20, 20);
+            mp = new ValueTuple<int, int>(18, 18);
             baseDamage = 1;
             skills = new Skill[4];
             level = 0;
@@ -52,6 +53,14 @@ namespace Assets.Model.Entities {
             }
             return false;
         }
+        public bool HasMPSkills() {
+            foreach (Skill skill in skills) {
+                if (skill != null && Skill.COSTS.ContainsKey(skill.type)) {
+                    return true;
+                }
+            }
+            return false;
+        }
 
         public override void OnTurnEnd() {
             base.OnTurnEnd();
@@ -61,8 +70,8 @@ namespace Assets.Model.Entities {
                     skill.DecrementCooldown();
                 }
             }
-            if (turnsOnFloor > 25) {
-                xp.Item1 -= xp.Item2 * .001f;
+            if (turnsOnFloor > LINGER_TURNS) {
+                xp.Item1 -= xp.Item2 * .01f;
             }
         }
         public void OnKill(Enemy enemy) {
@@ -73,20 +82,25 @@ namespace Assets.Model.Entities {
         }
         public void OnNewFloor() {
             turnsOnFloor = 0;
-            Heal(Util.RandRound(hp.Item2 / 20f));
-            GainMP(Util.RandRound(mp.Item2 / 20f));
+            int healAmount = Util.RandRound(hp.Item2 / 20f);
             if (HasSkill(SkillType.Regeneration)) {
-                Heal(5);
+                healAmount += 5;
             }
+            Heal(healAmount);
+            GainMP(Util.RandRound(mp.Item2 / 7f));
         }
         public void OnLearnSkill(Skill skill) {
             if (skill.type == SkillType.MaxHP20) {
                 ChangeMaxHP(20);
+            } else if (skill.type == SkillType.MaxHP40) {
+                ChangeMaxHP(40);
             }
         }
         public void OnLoseSkill(Skill skill) {
             if (skill.type == SkillType.MaxHP20) {
                 ChangeMaxHP(-20);
+            } else if (skill.type == SkillType.MaxHP40) {
+                ChangeMaxHP(-40);
             }
         }
 
@@ -94,6 +108,8 @@ namespace Assets.Model.Entities {
             xp.Item1 += gain;
             if (xp.Item1 >= xp.Item2) {
                 level++;
+                ChangeMaxHP(5);
+                ChangeMaxMP(2);
                 xp.Item1 -= xp.Item2;
                 xp.Item2 *= 1.5f;
                 LearnSkill();

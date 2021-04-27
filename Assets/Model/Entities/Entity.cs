@@ -51,10 +51,10 @@ namespace Assets.Model {
             }
         }
 
-        public void Attack(Entity entity) {
-            Attack(entity, CalculateDamage(entity));
+        public void Attack(Entity entity, bool playAnimation = true) {
+            Attack(entity, CalculateDamage(entity), playAnimation);
         }
-        public void Attack(Entity entity, int damage) {
+        public void Attack(Entity entity, int damage, bool playAnimation = true) {
             if (traits.Has(EntityTrait.TripleDamage)) {
                 damage *= 3;
             } else if (traits.Has(EntityTrait.DoubleDamage)) {
@@ -62,6 +62,19 @@ namespace Assets.Model {
             }
             if (entity.traits.Has(EntityTrait.Invulnerable)) {
                 damage = 0;
+            }
+            // Animation.
+            if (playAnimation &&
+                (type == EntityType.Player || entity.type == EntityType.Player) &&
+                (type == EntityType.Enemy || entity.type == EntityType.Enemy)) {
+                animationTarget = entity;
+            }
+            // Sound.
+            if (damage > 0) {
+                SFXScript.SFXHit();
+            }
+            if (damage <= 0) {
+                return;
             }
             entity.hp.Item1 = Mathf.Max(0, entity.hp.Item1 - damage);
             // Mana burn.
@@ -81,15 +94,6 @@ namespace Assets.Model {
                     player.OnKill(enemy);
                 }
             }
-            // Animation.
-            if ((type == EntityType.Player || entity.type == EntityType.Player) &&
-                (type == EntityType.Enemy || entity.type == EntityType.Enemy)) {
-                animationTarget = entity;
-            }
-            // Sound.
-            if (damage > 0) {
-                SFXScript.SFXHit();
-            }
         }
         public virtual int CalculateDamage(Entity target) {
             return baseDamage;
@@ -105,6 +109,11 @@ namespace Assets.Model {
             float percentage = hp.Item1 / (float)hp.Item2;
             int newMax = Mathf.Max(1, hp.Item2 + amount);
             hp = new ValueTuple<int, int>(Mathf.RoundToInt(percentage * newMax), newMax);
+        }
+        public void ChangeMaxMP(int amount) {
+            float percentage = mp.Item1 / (float)mp.Item2;
+            int newMax = Mathf.Max(0, mp.Item2 + amount);
+            mp = new ValueTuple<int, int>(Mathf.RoundToInt(percentage * newMax), newMax);
         }
 
         public virtual void OnTurnEnd() {

@@ -17,7 +17,7 @@ public class HUDScript : MonoBehaviour
     public CanvasGroup canvasGroupHUD, canvasGroupSkills, canvasGroupMP;
     public GameObject skillAnchor;
     public Image hpImage, mpImage, xpImage;
-    public TextMeshProUGUI hpText, mpText;
+    public TextMeshProUGUI floorText, hpText, mpText, lingerText;
 
     Player player;
     List<SkillSlotScript> skillSlotScripts;
@@ -32,6 +32,9 @@ public class HUDScript : MonoBehaviour
             skillSlotScript.Initialize(player, i);
             skillSlotScripts.Add(skillSlotScript);
         }
+        Color c = lingerText.color;
+        c.a = 0;
+        lingerText.color = c;
     }
 
     void Update()
@@ -42,10 +45,12 @@ public class HUDScript : MonoBehaviour
         if (player.skills[0] != null) {
             canvasGroupSkills.alpha += .04f;
         }
-        if (player.skills.Any(s => s != null && Skill.COSTS.ContainsKey(s.type) && Skill.COSTS[s.type] > 0) || player.mp.Item1 < player.mp.Item2) {
+        if (player.HasMPSkills() || player.mp.Item1 < player.mp.Item2) {
             canvasGroupMP.alpha += .04f;
         }
-        SetTexts();
+        floorText.text = player.tile.floor.number + "B";
+        hpText.text = string.Format("{0}/{1}", player.hp.Item1, player.hp.Item2);
+        mpText.text = string.Format("{0}/{1}", player.mp.Item1, player.mp.Item2);
         Vector3 hpImageScale = hpImage.transform.localScale;
         hpImageScale.x = Mathf.Lerp(hpImageScale.x, player.hp.Item1 / (float)player.hp.Item2, .1f);
         hpImage.transform.localScale = hpImageScale;
@@ -55,11 +60,8 @@ public class HUDScript : MonoBehaviour
         Vector3 xpImageScale = xpImage.transform.localScale;
         xpImageScale.x = Mathf.Lerp(xpImageScale.x, Mathf.Max(0, player.xp.Item1) / player.xp.Item2, .1f);
         xpImage.transform.localScale = xpImageScale;
-        // Skill replacement.
-
-    }
-    void SetTexts() {
-        hpText.text = string.Format("{0}/{1}", player.hp.Item1, player.hp.Item2);
-        mpText.text = string.Format("{0}/{1}", player.mp.Item1, player.mp.Item2);
+        Color c = lingerText.color;
+        c.a = Mathf.Clamp01(c.a + (player.turnsOnFloor > Player.LINGER_TURNS ? .1f : -.1f));
+        lingerText.color = c;
     }
 }

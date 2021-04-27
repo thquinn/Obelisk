@@ -30,6 +30,7 @@ public class GameManagerScript : MonoBehaviour
     Vector3 cameraTargetXZ;
     float cameraMoveStartY;
     int cameraMoveFrames;
+    public FadeScript fadeScript;
 
     public static Skill clickedSkill;
 
@@ -62,7 +63,7 @@ public class GameManagerScript : MonoBehaviour
     }
 
     void MakeNewFloor() {
-        Floor floor = nextFloorNumber == 0 ? new Floor(0, null) : Floor.Generate(nextFloorNumber, floors[floors.Count - 1], 100);
+        Floor floor = nextFloorNumber == 0 ? new Floor(0, null, null) : Floor.Generate(nextFloorNumber, floors[floors.Count - 1], 100, player);
         floors.Add(floor);
         FloorScript floorScript = Instantiate(floorPrefab).GetComponent<FloorScript>();
         floorScript.Initialize(floor);
@@ -81,7 +82,7 @@ public class GameManagerScript : MonoBehaviour
             Application.Quit();
         }
         if (Input.GetKeyDown(KeyCode.R)) {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            fadeScript.gameOver = true;
         }
         UpdateCameraAndFloors();
         // Skill replacement.
@@ -90,6 +91,7 @@ public class GameManagerScript : MonoBehaviour
                 if (player.skills[i] == clickedSkill) {
                     player.OnLoseSkill(player.skills[i]);
                     player.skills[i] = new Skill(player, player.replacementSkill);
+                    player.OnLearnSkill(player.skills[i]);
                     player.replacementSkill = SkillType.None;
                     clickedSkill = null;
                     break;

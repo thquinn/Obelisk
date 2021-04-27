@@ -23,10 +23,10 @@ namespace Assets.Model {
     };
         public static Dictionary<SkillType, int> COOLDOWNS = new Dictionary<SkillType, int> {
             { SkillType.Autophage, 40 },
-            { SkillType.Empower, 2 },
-            { SkillType.FastForward, 3 },
+            { SkillType.Empower, 3 },
+            { SkillType.FastForward, 1 },
             { SkillType.Phase, 20 },
-            { SkillType.Quicken, 10 },
+            { SkillType.Quicken, 7 },
             { SkillType.Shield, 8 },
             { SkillType.Wait, 0 },
         };
@@ -35,7 +35,7 @@ namespace Assets.Model {
             { SkillType.Empower, 2 },
             { SkillType.FastForward, 1 },
             { SkillType.Phase, 5 },
-            { SkillType.Quicken, 7 },
+            { SkillType.Quicken, 6 },
             { SkillType.Shield, 4 },
             { SkillType.Wait, 1 },
         };

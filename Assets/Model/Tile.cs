@@ -23,8 +23,10 @@ namespace Assets.Model {
         }
 
         public bool IsPassable(Entity entity) {
-            if (entity.type == EntityType.Enemy && ContainsTrap() && !entity.traits.Has(EntityTrait.Flying) && !floor.playerOnFloor) {
-                return false;
+            if (entity.type == EntityType.Enemy && ContainsTrap() && !entity.traits.Has(EntityTrait.Flying)) {
+                if (!floor.playerOnFloor || entity.hp.Item1 == 1) {
+                    return false;
+                }
             }
             switch (type) {
                 case TileType.Floor:
