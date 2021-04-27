@@ -40,6 +40,10 @@ namespace Assets.Model.Entities {
             xp = new ValueTuple<float, float>(0, 10);
             replacementSkill = SkillType.None;
             SetSkillsToLearn();
+            LearnSkill();
+            LearnSkill();
+            LearnSkill();
+            LearnSkill();
         }
         void SetSkillsToLearn() {
             skillsToLearn = new HashSet<SkillType>(SKILL_LEVEL_WEIGHTS.Select(t => t.Item1));

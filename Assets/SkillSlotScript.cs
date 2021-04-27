@@ -10,6 +10,7 @@ using UnityEngine.UI;
 public class SkillSlotScript : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
 {
     static int SPACING = 80;
+    static KeyCode[] KEYBINDS = new KeyCode[] { KeyCode.L, KeyCode.K, KeyCode.J, KeyCode.H };
 
     public Sprite spriteSlot, spritePassive, spriteActive;
 
@@ -17,7 +18,8 @@ public class SkillSlotScript : MonoBehaviour, IPointerClickHandler, IPointerEnte
     int index;
     public CanvasGroup canvasGroupSlot, canvasGroupCooldown;
     public Image backImage, skipImage;
-    public TextMeshProUGUI nameText, costText, cooldownText;
+    public GameObject keyObject;
+    public TextMeshProUGUI nameText, costText, cooldownText, keyText;
     public Collider2D collidre;
     public Skill skill;
     Vector3 originalNameOffset;
@@ -26,6 +28,7 @@ public class SkillSlotScript : MonoBehaviour, IPointerClickHandler, IPointerEnte
     private void Start() {
         originalNameOffset = nameText.gameObject.transform.localPosition;
         tooltipScript = Object.FindObjectOfType<TooltipScript>();
+        keyObject.SetActive(false);
     }
 
     public void Initialize(Player player, int index) {
@@ -52,6 +55,11 @@ public class SkillSlotScript : MonoBehaviour, IPointerClickHandler, IPointerEnte
         }
         
         cooldownText.text = skill.cooldown.ToString();
+
+        // Keybinds.
+        if (Input.GetKeyDown(KEYBINDS[index])) {
+            OnPointerClick(null);
+        }
     }
 
     void ResetSkill() {
@@ -60,13 +68,17 @@ public class SkillSlotScript : MonoBehaviour, IPointerClickHandler, IPointerEnte
             backImage.type = Image.Type.Tiled;
             nameText.text = "";
             costText.text = "";
+            keyObject.SetActive(false);
             return;
         } else if (Skill.COOLDOWNS.ContainsKey(skill.type)) {
             backImage.overrideSprite = spriteActive;
             costText.text = string.Format("{0} MP", Skill.COSTS[skill.type]);
+            keyObject.SetActive(true);
+            keyText.text = "LKJH"[index].ToString();
         } else {
             backImage.overrideSprite = spritePassive;
             costText.text = "";
+            keyObject.SetActive(false);
         }
         backImage.type = Image.Type.Sliced;
         nameText.text = Skill.NAMES[skill.type];
